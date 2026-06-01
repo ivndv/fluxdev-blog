@@ -1,4 +1,4 @@
-name: Blog Personal FluxDev CI/CD
+name: fluxdev-blog CI/CD
 
 on:
   push:

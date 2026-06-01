@@ -3,7 +3,7 @@
  * Layout para entradas individuales del blog con metadata, interacción y navegación.
  */
 
-import Comments from "../components/Comments.astro";
+import Comments from "../components/Comments.jsx";
 import ShareButtons from "../components/ShareButtons.astro";
 import { useTranslations } from "../i18n/ui";
 import Layout from "./Layout.astro";
@@ -103,37 +103,10 @@ const t = useTranslations(lang);
         <ShareButtons title={frontmatter.title} url={Astro.url} />
 
         <Comments
-            Genera
-            slug
-            único
-            para
-            comentarios:
-            usa
-            ref_id
-            si
-            existe,
-            o
-            transforma
-            la
-            ruta
-            actual
-            Transformación:
-            remueve
-            slashes
-            iniciales
-            finales
-            y
-            reemplaza
-            '
-            '
-            por
-            '-'
-            para
-            ID
-            plano
             slug={frontmatter.ref_id ||
                 Astro.url.pathname.replace(/^\/|\/$/g, "").replaceAll("/", "-")}
             lang={lang}
+            client:load
         />
     </article>
 </Layout>

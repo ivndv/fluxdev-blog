@@ -2,10 +2,10 @@
 # Wrangler es la CLI de Cloudflare para gestionar Workers y Pages
 
 # Nombre del proyecto en Cloudflare
-name = "fluxdv"
+name = "fluxdev-blog"
 
 # Fecha de compatibilidad para las APIs de Cloudflare
-compatibility_date = "2026-04-30"
+compatibility_date = "2026-06-01"
 
 # Directorio donde Astro genera el build estático
 pages_build_output_dir = "./dist"
