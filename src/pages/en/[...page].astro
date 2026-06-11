@@ -1,52 +1,46 @@
 ---
-/**
- * Página de inicio en inglés con listado paginado de artículos y etiquetas populares.
- */
-
+// Astro Content
+import { getCollection } from "astro:content";
+// Internacionalización
 import { useTranslations } from "../../i18n/ui";
+// Layouts
 import Layout from "../../layouts/Layout.astro";
 
 export const prerender = true;
 
-/**
- * Genera las rutas estáticas para paginación del listado de posts.
- * @param {Function} paginate - Función de Astro para generar páginas paginadas
- * @returns {Promise<Array>} Array de objetos page con posts ordenados por fecha
- */
+// Genera rutas estáticas paginadas para la página de inicio en inglés
 export async function getStaticPaths({ paginate }) {
-	// 1. Importar todos los archivos .md de la carpeta blog
-	const posts = import.meta.glob("./blog/*.md", { eager: true });
-	const allPosts = Object.values(posts);
-
-	// 2. Ordenar posts por fecha descendente (más recientes primero)
-	const sortedPosts = allPosts.sort(
+	// 1. Obtener todos los posts y filtrar solo inglés
+	const posts = await getCollection("blog");
+	const enPosts = posts.filter((p) => p.id.startsWith("en/"));
+	// 2. Ordenar por fecha descendente (más recientes primero)
+	const sortedPosts = enPosts.sort(
 		(a, b) =>
-			new Date(b.frontmatter.date).valueOf() -
-			new Date(a.frontmatter.date).valueOf(),
+			new Date(b.data.date).valueOf() -
+			new Date(a.data.date).valueOf(),
 	);
-
-	// 3. Generar páginas con 6 posts por página
+	// 3. Paginar con 6 posts por página
 	return paginate(sortedPosts, { pageSize: 6 });
 }
 
+// Props de paginación inyectados por getStaticPaths
 const { page } = Astro.props;
 const lang = "en";
 const t = useTranslations(lang);
 
-// Calcular etiquetas populares: frecuencia global de tags en todos los posts
-const postsGlob = import.meta.glob("./blog/*.md", { eager: true });
-const globalPosts = Object.values(postsGlob);
-
-// 1. Extraer todos los tags de todos los posts
-// 2. Contar frecuencia de cada tag
-// 3. Ordenar por frecuencia descendente y tomar top 10
-const tagCounts = globalPosts
-	.flatMap((post) => post.frontmatter.tags || [])
+// Etiquetas populares: frecuencia global de tags en todos los posts EN
+const allPosts = await getCollection("blog");
+const enPosts = allPosts.filter((p) => p.id.startsWith("en/"));
+const tagCounts = enPosts
+	// 1. Extraer todos los tags de todos los posts
+	.flatMap((post) => post.data.tags || [])
+	// 2. Contar frecuencia de cada tag
 	.reduce((acc, tag) => {
 		acc[tag] = (acc[tag] || 0) + 1;
 		return acc;
 	}, {});
 
+// 3. Ordenar por frecuencia descendente y tomar top 10
 const uniqueTags = Object.entries(tagCounts)
 	.sort(([, a], [, b]) => b - a)
 	.slice(0, 10)
@@ -54,150 +48,140 @@ const uniqueTags = Object.entries(tagCounts)
 ---
 
 <Layout title="Home | Flux Blog" lang="en">
-    <section class="py-8 md:py-12">
-        {/* Sección hero: título principal y texto de bienvenida */}
-        <h1
-            class="text-3xl md:text-4xl font-extrabold text-text-primary mb-6 tracking-tight"
-        >
-            {t("home.hero.title")}
-            <span class="text-accent">{t("home.hero.subtitle")}</span>
-        </h1>
+	<section class="py-8 md:py-12">
+		{/* Sección hero: título principal y texto de bienvenida */}
+		<h1
+			class="text-3xl md:text-4xl font-extrabold text-text-primary mb-6 tracking-tight"
+		>
+			{t("home.hero.title")}
+			<span class="text-accent">{t("home.hero.subtitle")}</span>
+		</h1>
 
-        <div class="mb-10 max-w-2xl">
-            <p class="text-lg text-text-secondary leading-relaxed mb-6">
-                {t("home.welcome")}
-            </p>
-        </div>
+		<div class="mb-10 max-w-2xl">
+			<p class="text-lg text-text-secondary leading-relaxed mb-6">
+				{t("home.welcome")}
+			</p>
+		</div>
 
-        {
-            /* Etiquetas populares: renderizado condicional si hay tags, enlaces a páginas de tag */
-        }
-        {
-            uniqueTags.length > 0 && (
-                <div class="mb-12 border-b border-border-subtle pb-8">
-                    <p class="text-xs font-bold text-text-muted uppercase tracking-wider mb-3">
-                        {t("home.popular")}
-                    </p>
-                    <div class="flex flex-wrap gap-3">
-                        {uniqueTags.map((tag) => (
-                            <a
-                                href={`/en/tags/${tag}`}
-                                class="bg-bg-card border border-border-subtle text-text-secondary px-4 py-2 rounded-full text-sm font-medium hover:border-accent hover:text-accent hover:shadow-sm transition"
-                            >
-                                #{tag}
-                            </a>
-                        ))}
-                    </div>
-                </div>
-            )
-        }
+		{
+			/* Etiquetas populares: renderizado condicional, enlaces a /en/tags/ */
+			uniqueTags.length > 0 && (
+				<div class="mb-12 border-b border-border-subtle pb-8">
+					<p class="text-xs font-bold text-text-muted uppercase tracking-wider mb-3">
+						{t("home.popular")}
+					</p>
+					<div class="flex flex-wrap gap-3">
+						{uniqueTags.map((tag) => (
+							<a
+								href={`/en/tags/${tag}`}
+								class="bg-bg-card border border-border-subtle text-text-secondary px-4 py-2 rounded-full text-sm font-medium hover:border-accent hover:text-accent hover:shadow-sm transition"
+							>
+								#{tag}
+							</a>
+						))}
+					</div>
+				</div>
+			)
+		}
 
-        {
-            /* Grid de artículos: tarjetas con metadata, título, descripción y enlace "Leer más" */
-        }
-        <div
-            class="grid gap-6 md:gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
-        >
-            {
-                page.data.map((post) => (
-                    <article class="bg-bg-card p-6 rounded-lg shadow-sm border border-border-subtle hover:border-accent hover:shadow-md transition duration-300 flex flex-col h-full">
-                        {/* Metadata del post: fecha y tiempo estimado de lectura */}
-                        <div class="flex justify-between items-center mb-3">
-                            <div class="flex items-center gap-2 text-xs text-text-muted font-medium">
-                                <span>{post.frontmatter.date}</span>
-                                <span>•</span>
-                                <span class="text-accent font-bold bg-accent-bg px-2 py-0.5 rounded-full">
-                                    {Math.ceil(
-                                        post.frontmatter.minutesRead || 1,
-                                    )}{" "}
-                                    {t("blog.readTime")}
-                                </span>
-                            </div>
-                        </div>
+		{
+			/* Grid de artículos: tarjetas con metadata, título, descripción y enlace */
+		}
+		<div
+			class="grid gap-6 md:gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+		>
+			{
+				page.data.map((post) => (
+					<article class="bg-bg-card p-6 rounded-lg shadow-sm border border-border-subtle hover:border-accent hover:shadow-md transition duration-300 flex flex-col h-full">
+						{/* Metadata: fecha y tiempo estimado de lectura */}
+						<div class="flex justify-between items-center mb-3">
+							<div class="flex items-center gap-2 text-xs text-text-muted font-medium">
+								<span>{post.data.date}</span>
+								<span>•</span>
+								<span class="text-accent font-bold bg-accent-bg px-2 py-0.5 rounded-full">
+									{Math.ceil(
+										post.data.minutesRead || 1,
+									)}{" "}
+									{t("blog.readTime")}
+								</span>
+							</div>
+						</div>
 
-                        {/* Título del post con enlace a la página individual */}
-                        <h2 class="text-xl md:text-2xl font-bold mb-3 text-text-primary leading-tight">
-                            <a
-                                href={post.url}
-                                class="hover:text-accent transition-colors"
-                            >
-                                {post.frontmatter.title}
-                            </a>
-                        </h2>
+						{/* Título del post con enlace a la página individual */}
+						<h2 class="text-xl md:text-2xl font-bold mb-3 text-text-primary leading-tight">
+							<a
+								href={`/en/blog/${post.id.replace("en/", "")}`}
+								class="hover:text-accent transition-colors"
+							>
+								{post.data.title}
+							</a>
+						</h2>
 
-                        {/* Descripción truncada a 3 líneas */}
-                        <p class="text-text-secondary mb-6 line-clamp-3 flex-grow text-sm md:text-base">
-                            {post.frontmatter.description}
-                        </p>
+						{/* Descripción truncada a 3 líneas */}
+						<p class="text-text-secondary mb-6 line-clamp-3 flex-grow text-sm md:text-base">
+							{post.data.description}
+						</p>
 
-                        {/* Enlace "Leer más" con icono de flecha animado */}
-                        <a
-                            href={post.url}
-                            class="text-sm font-bold text-text-primary hover:text-accent flex items-center gap-1 group mt-auto"
-                        >
-                            {t("blog.readMore")}
-                            <span class="group-hover:translate-x-1 transition-transform">
-                                &rarr;
-                            </span>
-                        </a>
-                    </article>
-                ))
-            }
-        </div>
+						{/* Enlace "Leer más" con flecha animada */}
+						<a
+							href={`/en/blog/${post.id.replace("en/", "")}`}
+							class="text-sm font-bold text-text-primary hover:text-accent flex items-center gap-1 group mt-auto"
+						>
+							{t("blog.readMore")}
+							<span class="group-hover:translate-x-1 transition-transform">
+								&rarr;
+							</span>
+						</a>
+					</article>
+				))
+			}
+		</div>
 
-        {
-            /* Controles de paginación: botón anterior, números de página con estado activo, botón siguiente */
-        }
-        <div class="flex justify-center items-center gap-2 mt-12">
-            {/* Botón página anterior: deshabilitado si no hay página previa */}
-            <a
-                href={page.url.prev || "#"}
-                class={`w-10 h-10 flex items-center justify-center rounded-full border border-border-subtle transition-colors ${!page.url.prev ? "text-text-muted cursor-not-allowed opacity-50" : "bg-bg-card hover:border-accent hover:text-accent"}`}
-                aria-disabled={!page.url.prev}
-                aria-label="Previous page"
-            >
-                <span class="icon-[solar--alt-arrow-left-outline] w-5 h-5"
-                ></span>
-            </a>
+		{/* Controles de paginación: anterior, números, siguiente */}
+		<div class="flex justify-center items-center gap-2 mt-12">
+			{/* Botón página anterior: deshabilitado si no hay página previa */}
+			<a
+				href={page.url.prev || "#"}
+				class={`w-10 h-10 flex items-center justify-center rounded-full border border-border-subtle transition-colors ${!page.url.prev ? "text-text-muted cursor-not-allowed opacity-50" : "bg-bg-card hover:border-accent hover:text-accent"}`}
+				aria-disabled={!page.url.prev}
+				aria-label="Previous page"
+			>
+				<span class="icon-[solar--alt-arrow-left-outline] w-5 h-5"
+				></span>
+			</a>
 
-            {
-                /* Números de página: enlace a página 1 como /en, resto como /en/[num] */
-            }
-            <div class="flex items-center gap-1">
-                {
-                    Array.from({ length: page.lastPage }, (_, i) => i + 1).map(
-                        (num) => {
-                            const isCurrent = num === page.currentPage;
-                            const href = num === 1 ? "/en" : `/en/${num}`;
-                            return (
-                                <a
-                                    href={href}
-                                    class={`w-10 h-10 flex items-center justify-center rounded-full text-sm font-bold transition-all ${
-                                        isCurrent
-                                            ? "bg-accent text-white shadow-md scale-105"
-                                            : "bg-transparent text-text-muted hover:bg-bg-subtle hover:text-text-primary"
-                                    }`}
-                                >
-                                    {num}
-                                </a>
-                            );
-                        },
-                    )
-                }
-            </div>
+			{/* Números de página: página 1 es "/en", el resto "/en/[num]" */}
+			{
+				Array.from({ length: page.lastPage }, (_, i) => i + 1).map(
+					(num) => {
+						const isCurrent = num === page.currentPage;
+						const href = num === 1 ? "/en" : `/en/${num}`;
+						return (
+							<a
+								href={href}
+								class={`w-10 h-10 flex items-center justify-center rounded-full text-sm font-bold transition-all ${
+									isCurrent
+										? "bg-accent text-white shadow-md scale-105"
+										: "bg-transparent text-text-muted hover:bg-bg-subtle hover:text-text-primary"
+								}`}
+							>
+								{num}
+							</a>
+						);
+					},
+				)
+			}
 
-            {
-                /* Botón página siguiente: deshabilitado si no hay página siguiente */
-            }
-            <a
-                href={page.url.next || "#"}
-                class={`w-10 h-10 flex items-center justify-center rounded-full border border-border-subtle transition-colors ${!page.url.next ? "text-text-muted cursor-not-allowed opacity-50" : "bg-bg-card hover:border-accent hover:text-accent"}`}
-                aria-disabled={!page.url.next}
-                aria-label="Next page"
-            >
-                <span class="icon-[solar--alt-arrow-right-outline] w-5 h-5"
-                ></span>
-            </a>
-        </div>
-    </section>
+			{/* Botón página siguiente: deshabilitado si no hay página siguiente */}
+			<a
+				href={page.url.next || "#"}
+				class={`w-10 h-10 flex items-center justify-center rounded-full border border-border-subtle transition-colors ${!page.url.next ? "text-text-muted cursor-not-allowed opacity-50" : "bg-bg-card hover:border-accent hover:text-accent"}`}
+				aria-disabled={!page.url.next}
+				aria-label="Next page"
+			>
+				<span class="icon-[solar--alt-arrow-right-outline] w-5 h-5"
+				></span>
+			</a>
+		</div>
+	</section>
 </Layout>

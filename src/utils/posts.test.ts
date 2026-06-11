@@ -1,29 +1,11 @@
-/**
- * Pruebas unitarias para la función getTranslatedPath de resolución de rutas traducidas.
- *
- * @suite getTranslatedPath
- * @framework vitest
- * @coverage
- * - Traducción de ruta español → inglés mediante ref_id
- * - Traducción de ruta inglés → español mediante ref_id
- * - Retorno null cuando no existe ref_id en el post
- * - Manejo correcto de páginas índice (/ y /en)
- */
+// Pruebas unitarias para getTranslatedPath: resolución de rutas traducidas
 
 import { describe, expect, it } from "vitest";
 import { getTranslatedPath } from "./posts";
 
-/**
- * Suite de pruebas para getTranslatedPath: valida resolución de rutas entre idiomas.
- * Utiliza un mock de posts con estructura de frontmatter.ref_id para simular el mapa de traducciones.
- */
+// Suite de pruebas para getTranslatedPath: valida resolución de rutas entre idiomas
 describe("getTranslatedPath", () => {
-	// Mock de posts: simula el resultado de import.meta.glob con frontmatter.ref_id
-	// Estructura: { ruta: { frontmatter: { ref_id: string } } }
-	// Notas:
-	// - Posts con mismo ref_id en diferentes idiomas son traducciones entre sí
-	// - Archivos sin ref_id se ignoran en la resolución
-	// - Rutas de índice ("/", "/en") requieren manejo especial
+	// Mock de posts: simula resultado de import.meta.glob con frontmatter.ref_id
 	const mockPosts = {
 		"../pages/blog/post-es.md": {
 			frontmatter: { ref_id: "post-1" },
@@ -35,58 +17,46 @@ describe("getTranslatedPath", () => {
 		"../pages/en/index.astro": {},
 	};
 
-	/**
-	 * Valida que una ruta en español se resuelva correctamente a su equivalente en inglés.
-	 * Escenario: post con ref_id "post-1" existe en ambos idiomas.
-	 */
+	// Valida ruta ES → EN con ref_id compartido
 	it("should translate Spanish path to English path", () => {
-		// 1. Ejecutar función con ruta en español y idioma destino 'en'
+		// 1. Ejecutar función con ruta ES y destino EN
 		const result = getTranslatedPath("/blog/post-es", "en", mockPosts);
-		// 2. Verificar que retorna la ruta traducida en inglés
+		// 2. Verificar que retorna la ruta EN
 		expect(result).toBe("/en/blog/post-en");
 	});
 
-	/**
-	 * Valida que una ruta en inglés se resuelva correctamente a su equivalente en español.
-	 * Escenario: post con ref_id "post-1" existe en ambos idiomas.
-	 */
+	// Valida ruta EN → ES con ref_id compartido
 	it("should translate English path to Spanish path", () => {
-		// 1. Ejecutar función con ruta en inglés y idioma destino 'es'
+		// 1. Ejecutar función con ruta EN y destino ES
 		const result = getTranslatedPath("/en/blog/post-en", "es", mockPosts);
-		// 2. Verificar que retorna la ruta traducida en español
+		// 2. Verificar que retorna la ruta ES
 		expect(result).toBe("/blog/post-es");
 	});
 
-	/**
-	 * Valida que la función retorne null cuando el post origen no tiene ref_id definido.
-	 * Escenario: post sin metadata de traducción no puede resolverse a otro idioma.
-	 */
+	// Retorna null si el post no tiene ref_id
 	it("should return null if no ref_id is found", () => {
-		// 1. Mock con post que carece de ref_id en frontmatter
+		// 1. Mock sin ref_id
 		const emptyPosts = {
 			"../pages/blog/no-ref.md": { frontmatter: {} },
 		};
-		// 2. Ejecutar función y verificar que retorna null (sin traducción disponible)
+		// 2. Ejecutar y verificar null
 		const result = getTranslatedPath("/blog/no-ref", "en", emptyPosts);
 		expect(result).toBeNull();
 	});
 
-	/**
-	 * Valida el manejo especial de páginas índice: "/" en español ↔ "/en" en inglés.
-	 * Escenario: páginas raíz con ref_id "home" deben traducirse correctamente.
-	 */
+	// Maneja páginas índice correctamente
 	it("should handle index pages correctly", () => {
-		// 1. Mock de páginas índice con ref_id compartido "home"
+		// 1. Mock de páginas índice con ref_id compartido
 		const indexPosts = {
 			"../pages/index.md": { frontmatter: { ref_id: "home" } },
 			"../pages/en/index.md": { frontmatter: { ref_id: "home" } },
 		};
 
-		// 2. Probar traducción español → inglés para ruta raíz
+		// 2. Probar traducción ES → EN
 		const esToEn = getTranslatedPath("/", "en", indexPosts);
 		expect(esToEn).toBe("/en");
 
-		// 3. Probar traducción inglés → español para ruta raíz
+		// 3. Probar traducción EN → ES
 		const enToEs = getTranslatedPath("/en", "es", indexPosts);
 		expect(enToEs).toBe("/");
 	});

@@ -1,0 +1,30 @@
+---
+// Astro Content
+import { getEntry, getCollection, render } from "astro:content";
+// Layouts
+import BlogPost from "../../../layouts/BlogPost.astro";
+
+// Genera rutas estáticas para cada post individual del blog en inglés
+export async function getStaticPaths() {
+	// 1. Obtener todos los posts del blog
+	const posts = await getCollection("blog");
+	// 2. Filtrar solo posts en inglés (prefijo "en/") y limpiar el slug
+	return posts
+		.filter((p) => p.id.startsWith("en/"))
+		.map((post) => ({
+			params: { slug: post.id.replace("en/", "") },
+		}));
+}
+
+// 1. Obtener el slug de la URL
+const { slug } = Astro.params;
+// 2. Buscar el post reconstruyendo el id con prefijo "en/"
+const entry = await getEntry("blog", `en/${slug}`);
+// 3. Renderizar el contenido markdown a HTML
+const { Content, remarkPluginFrontmatter } = await render(entry);
+---
+
+{/* Layout del post individual en inglés */}
+<BlogPost frontmatter={{ ...entry.data, minutesRead: remarkPluginFrontmatter.minutesRead || 1 }}>
+	<Content />
+</BlogPost>

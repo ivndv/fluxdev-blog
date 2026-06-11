@@ -1,29 +1,23 @@
 ---
-/**
- * Página de listado de artículos filtrados por etiqueta (tag).
- */
-
+// Astro Content
+import { getCollection } from "astro:content";
+// Layouts
 import Layout from "../../layouts/Layout.astro";
 
-/**
- * Genera rutas estáticas para cada etiqueta única encontrada en los posts del blog.
- * @returns {Promise<Array>} Array de objetos con params.tag y props.posts filtrados
- */
+// Genera rutas estáticas para cada etiqueta única encontrada en los posts ES
 export async function getStaticPaths() {
-	// 1. Importar todos los archivos .md de la carpeta blog
-	const posts = import.meta.glob("../blog/*.md", { eager: true });
-	const allPosts = Object.values(posts);
-
+	// 1. Obtener todos los posts y filtrar solo español
+	const posts = await getCollection("blog");
+	const esPosts = posts.filter((p) => !p.id.startsWith("en/"));
 	// 2. Extraer etiquetas únicas eliminando duplicados con Set
 	const uniqueTags = [
-		...new Set(allPosts.flatMap((post) => post.frontmatter.tags)),
+		...new Set(esPosts.flatMap((post) => post.data.tags)),
 	];
-
 	// 3. Generar una ruta por cada etiqueta con sus posts filtrados
 	return uniqueTags.map((tag) => {
 		// 3.1. Filtrar posts que contengan la etiqueta actual
-		const filteredPosts = allPosts.filter((post) =>
-			post.frontmatter.tags?.includes(tag),
+		const filteredPosts = esPosts.filter((post) =>
+			post.data.tags?.includes(tag),
 		);
 		// 3.2. Retornar configuración de ruta con params y props
 		return {
@@ -33,56 +27,52 @@ export async function getStaticPaths() {
 	});
 }
 
-// Obtener parámetros de ruta y props inyectados por getStaticPaths.
+// Obtener parámetros de ruta y props inyectados por getStaticPaths
 const { tag } = Astro.params;
 const { posts } = Astro.props;
 ---
 
 <Layout title={`Artículos sobre ${tag}`}>
-  <div class="py-10">
-    {
-      /* Cabecera de la página: título de sección y etiqueta actual en formato hashtag */
-    }
-    <div class="mb-10 border-b border-border-subtle pb-4">
-      <p class="text-sm text-text-muted uppercase tracking-widest font-bold">
-        Explorando
-      </p>
-      <h1 class="text-4xl font-bold text-text-primary capitalize">
-        #{tag}
-      </h1>
-    </div>
+	<div class="py-10">
+		{/* Cabecera de la página: título de sección y etiqueta actual */}
+		<div class="mb-10 border-b border-border-subtle pb-4">
+			<p class="text-sm text-text-muted uppercase tracking-widest font-bold">
+				Explorando
+			</p>
+			<h1 class="text-4xl font-bold text-text-primary capitalize">
+				#{tag}
+			</h1>
+		</div>
 
-    {
-      /* Listado de artículos: tarjetas con título, descripción truncada y enlace al post */
-    }
-    <ul class="grid gap-8">
-      {
-        posts.map((post) => (
-          <li class="bg-bg-card p-6 rounded-lg shadow-sm border border-border-subtle hover:border-accent transition duration-300">
-            <a href={post.url} class="block group">
-              <h2 class="text-2xl font-bold text-text-primary group-hover:text-accent transition">
-                {post.frontmatter.title}
-              </h2>
-              <p class="text-text-secondary mt-2 line-clamp-2">
-                {post.frontmatter.description}
-              </p>
-              <span class="text-sm font-bold text-accent mt-4 block">
-                Leer artículo &rarr;
-              </span>
-            </a>
-          </li>
-        ))
-      }
-    </ul>
+		{/* Listado de artículos: tarjetas con título, descripción truncada y enlace */}
+		<ul class="grid gap-8">
+			{
+				posts.map((post) => (
+					<li class="bg-bg-card p-6 rounded-lg shadow-sm border border-border-subtle hover:border-accent transition duration-300">
+						<a href={`/blog/${post.id}`} class="block group">
+							<h2 class="text-2xl font-bold text-text-primary group-hover:text-accent transition">
+								{post.data.title}
+							</h2>
+							<p class="text-text-secondary mt-2 line-clamp-2">
+								{post.data.description}
+							</p>
+							<span class="text-sm font-bold text-accent mt-4 block">
+								Leer artículo &rarr;
+							</span>
+						</a>
+					</li>
+				))
+			}
+		</ul>
 
-    {/* Enlace de navegación: regresar al listado principal de artículos */}
-    <div class="mt-12">
-      <a
-        href="/"
-        class="text-text-muted hover:text-text-primary underline underline-offset-4"
-      >
-        &larr; Volver al inicio
-      </a>
-    </div>
-  </div>
+		{/* Enlace de navegación: regresar al listado principal */}
+		<div class="mt-12">
+			<a
+				href="/"
+				class="text-text-muted hover:text-text-primary underline underline-offset-4"
+			>
+				&larr; Volver al inicio
+			</a>
+		</div>
+	</div>
 </Layout>

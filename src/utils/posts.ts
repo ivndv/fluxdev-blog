@@ -1,41 +1,17 @@
-/**
- * Utilidades para resolución de rutas y gestión de posts del blog.
- */
+// Utilidades para resolución de rutas y gestión de posts del blog
 
-/**
- * Obtiene todos los archivos de contenido (.md, .mdx) de la carpeta pages.
- * @returns {Record<string, any>} Mapa de rutas a módulos de posts con frontmatter
- */
 type PostModule = {
 	frontmatter: { ref_id?: string; [key: string]: unknown };
 	url?: string;
 };
 type PostMap = Record<string, PostModule>;
 
+// Obtiene todos los archivos .md/.mdx de pages usando import.meta.glob
 export function getPosts(): PostMap {
 	return import.meta.glob("../pages/**/*.{md,mdx}", { eager: true }) as PostMap;
 }
 
-/**
- * Resuelve la ruta equivalente de un post en otro idioma mediante ref_id compartido.
- *
- * @param {string} currentPath - Ruta URL actual (ej: "/blog/post" o "/en/blog/post")
- * @param {'es' | 'en'} targetLang - Idioma destino para la traducción
- * @param {Record<string, any>} [postsOverride] - Mapa de posts opcional para testing
- * @returns {string | null} Ruta traducida si existe, null si no hay traducción disponible
- *
- * @behavior
- * - Normaliza rutas de archivo a formato URL para comparación
- * - Busca ref_id del post actual en el mapa de posts
- * - Retorna null si el post no tiene ref_id definido
- * - Busca post con mismo ref_id en idioma destino
- * - Retorna null si no encuentra contraparte en el idioma objetivo
- *
- * @example
- * getTranslatedPath("/blog/hola", "en", posts) // → "/en/blog/hello"
- * getTranslatedPath("/en/about", "es", posts)  // → "/about"
- * getTranslatedPath("/sin-ref", "en", posts)   // → null
- */
+// Resuelve la ruta equivalente de un post en otro idioma mediante ref_id compartido
 export function getTranslatedPath(
 	currentPath: string,
 	targetLang: string,
@@ -50,10 +26,7 @@ export function getTranslatedPath(
 	for (const path in posts) {
 		const post = posts[path];
 
-		// 1.1. Normalizar ruta de archivo a formato URL para comparación
-		// Ej: "../pages/blog/post.md" → "/blog/post"
-		// Ej: "../pages/en/blog/post.md" → "/en/blog/post"
-		// Ej: "../pages/index.md" → "/"
+		// 1.1. Normalizar ruta de archivo a formato URL
 		let generatedPath = path
 			.replace("../pages", "")
 			.replace(/\.mdx?$/, "")
@@ -81,7 +54,7 @@ export function getTranslatedPath(
 
 		// 2.1. Filtrar posts que compartan el mismo ref_id
 		if (post.frontmatter?.ref_id === refId) {
-			// 2.2. Normalizar ruta del candidato para evaluación
+			// 2.2. Normalizar ruta del candidato
 			let generatedPath = path
 				.replace("../pages", "")
 				.replace(/\.mdx?$/, "")
@@ -89,7 +62,7 @@ export function getTranslatedPath(
 
 			if (generatedPath === "") generatedPath = "/";
 
-			// 2.3. Determinar si el candidato está en inglés (prefijo /en)
+			// 2.3. Determinar si el candidato está en inglés
 			const isEn = generatedPath.startsWith("/en");
 
 			// 2.4. Retornar ruta si coincide con idioma destino solicitado
@@ -98,6 +71,6 @@ export function getTranslatedPath(
 		}
 	}
 
-	// 2.5. Si no se encontró contraparte en idioma destino, retornar null
+	// 2.5. Si no se encontró contraparte, retornar null
 	return null;
 }
