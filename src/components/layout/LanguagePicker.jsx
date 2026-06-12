@@ -1,7 +1,13 @@
+// React
 import { useState, useRef, useEffect } from "react";
-import { useStore } from "../store/store";
-import { languages } from "../i18n/ui";
+// Store
+import { useStore } from "../../store/store";
+// Traducciones
+import { languages } from "../../i18n/ui";
+// Utilidades
+import { getLangPath } from "../../utils/path";
 
+// Selector de idioma con menú desplegable
 function LanguagePicker({ currentPath: propPath }) {
 	const lang = useStore((s) => s.lang);
 	const setLang = useStore((s) => s.setLang);
@@ -10,11 +16,14 @@ function LanguagePicker({ currentPath: propPath }) {
 	const btnRef = useRef(null);
 	const [clientPath, setClientPath] = useState(propPath || "");
 
+	// Obtiene la ruta actual del cliente (solo en el navegador)
 	useEffect(() => {
 		setClientPath(window.location.pathname);
 	}, []);
 
+	// Cierra el menú al hacer clic fuera o presionar Escape
 	useEffect(() => {
+		// 1. Cierra al hacer clic fuera del menú
 		const handleClick = (e) => {
 			if (
 				isOpen &&
@@ -24,6 +33,7 @@ function LanguagePicker({ currentPath: propPath }) {
 				setIsOpen(false);
 			}
 		};
+		// 2. Cierra al presionar Escape y devuelve el foco al botón
 		const handleKey = (e) => {
 			if (e.key === "Escape" && isOpen) {
 				e.preventDefault();
@@ -33,23 +43,16 @@ function LanguagePicker({ currentPath: propPath }) {
 		};
 		document.addEventListener("click", handleClick);
 		document.addEventListener("keydown", handleKey);
+		// 3. Limpia los eventos al desmontar o cerrar
 		return () => {
 			document.removeEventListener("click", handleClick);
 			document.removeEventListener("keydown", handleKey);
 		};
 	}, [isOpen]);
 
-	const getLangPath = (targetLang) => {
-		const currentPath = clientPath || propPath || "/";
-		if (targetLang === "es") {
-			return currentPath.startsWith("/en") ? currentPath.replace(/^\/en/, "") || "/" : currentPath;
-		}
-		if (currentPath.startsWith("/en")) return currentPath;
-		return `/en${currentPath === "/" ? "" : currentPath}`;
-	};
-
 	return (
 		<div className="relative inline-block" ref={menuRef}>
+			{/* Botón del selector */}
 			<button
 				type="button"
 				ref={btnRef}
@@ -66,6 +69,7 @@ function LanguagePicker({ currentPath: propPath }) {
 				<span className="icon-[solar--alt-arrow-down-outline] w-[12px] h-[12px] opacity-50 group-hover:opacity-100 transition-opacity" />
 			</button>
 
+			{/* Menú desplegable */}
 			<div
 				id="lang-menu-dropdown"
 				role="menu"
@@ -82,7 +86,7 @@ function LanguagePicker({ currentPath: propPath }) {
 					return (
 						<a
 							key={labelLang}
-							href={getLangPath(labelLang)}
+							href={getLangPath(labelLang, clientPath || propPath || "/")}
 							role="menuitem"
 							onClick={() => {
 								setLang(labelLang);

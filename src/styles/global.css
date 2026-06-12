@@ -1,7 +1,4 @@
-/**
- * Configuración global de estilos con Tailwind CSS v4.
- * Define tokens semánticos de color, tipografía, animaciones y overrides de typography.
- */
+/* Configuración global de estilos con Tailwind CSS v4 */
 
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";

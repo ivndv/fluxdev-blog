@@ -1,8 +1,17 @@
+// React
 import { useEffect, useRef } from "react";
-import { useStore } from "../store/store";
-import { useTranslations } from "../i18n/ui";
+// Store
+import { useStore } from "../../store/store";
+// Traducciones
+import { useTranslations } from "../../i18n/ui";
+// Utilidades
+import { localizeHref } from "../../utils/path";
 
-function MobileMenu({ lang = "es" }) {
+// Menú de navegación responsive para móviles
+//  - lang: "es" | "en"
+//  - isOpen: bool (control externo)
+//  - onClose: callback al cerrar
+function MobileMenu({ lang = "es", isOpen, onClose }) {
 	const menuRef = useRef(null);
 	const theme = useStore((s) => s.theme);
 	const toggleTheme = useStore((s) => s.toggleTheme);
@@ -10,52 +19,39 @@ function MobileMenu({ lang = "es" }) {
 	const t = useTranslations(lang);
 	const isEn = lang === "en";
 
+	// Cierra al hacer clic fuera o en un enlace
 	useEffect(() => {
-		const menuButton = document.getElementById("mobile-menu-button");
-		const mobileMenu = document.getElementById("mobile-menu");
+		if (!isOpen) return;
 
-		const toggle = () => {
-			mobileMenu?.classList.toggle("hidden");
-		};
-
-		const closeOnOutside = (e) => {
-			if (
-				!mobileMenu?.classList.contains("hidden") &&
-				!menuButton?.contains(e.target) &&
-				!mobileMenu?.contains(e.target)
-			) {
-				mobileMenu?.classList.add("hidden");
+		// 1. Cierra el menú al hacer clic fuera del contenedor
+		const handleClickOutside = (e) => {
+			if (menuRef.current && !menuRef.current.contains(e.target)) {
+				onClose?.();
 			}
 		};
 
-		const closeOnNav = () => {
-			mobileMenu?.querySelectorAll("a").forEach((link) => {
-				link.addEventListener("click", () => {
-					mobileMenu?.classList.add("hidden");
-				});
-			});
+		// 2. Cierra el menú al hacer clic en un enlace de navegación
+		const handleLinkClick = () => {
+			onClose?.();
 		};
 
-		menuButton?.addEventListener("click", toggle);
-		document.addEventListener("click", closeOnOutside);
-		closeOnNav();
+		document.addEventListener("mousedown", handleClickOutside);
+		menuRef.current?.querySelectorAll("a").forEach((link) => {
+			link.addEventListener("click", handleLinkClick);
+		});
 
+		// 3. Limpia los eventos al desmontar o cerrar
 		return () => {
-			menuButton?.removeEventListener("click", toggle);
-			document.removeEventListener("click", closeOnOutside);
+			document.removeEventListener("mousedown", handleClickOutside);
 		};
-	}, []);
+	}, [isOpen, onClose]);
 
-	const getHref = (path) => {
-		if (isEn) return `/en${path === "/" ? "" : path}`;
-		return path;
-	};
+	if (!isOpen) return null;
 
 	return (
 		<div
-			id="mobile-menu"
 			ref={menuRef}
-			className="hidden sm:hidden border-t border-border-subtle bg-bg-canvas"
+			className="sm:hidden border-t border-border-subtle bg-bg-canvas"
 		>
 			<div className="max-w-7xl mx-auto px-4 py-4 flex flex-col gap-3">
 				<a
@@ -65,7 +61,7 @@ function MobileMenu({ lang = "es" }) {
 					{t("nav.home")}
 				</a>
 				<a
-					href={getHref("/about")}
+					href={localizeHref("/about", isEn)}
 					className="px-4 py-2 hover:bg-bg-subtle rounded-md transition-colors text-sm font-medium"
 				>
 					{t("nav.about")}
@@ -74,6 +70,7 @@ function MobileMenu({ lang = "es" }) {
 				<div className="border-t border-border-subtle my-2" />
 
 				<div className="px-4 py-2 flex flex-col gap-3">
+					{/* Selector de tema */}
 					<div className="flex flex-col gap-2">
 						<span className="text-xs font-bold text-text-muted uppercase tracking-wider">
 							Tema / Theme
@@ -94,6 +91,7 @@ function MobileMenu({ lang = "es" }) {
 						</button>
 					</div>
 
+					{/* Selector de idioma */}
 					<div className="flex flex-col gap-2">
 						<span className="text-xs font-bold text-text-muted uppercase tracking-wider">
 							Idioma / Language

@@ -1,17 +1,19 @@
 ---
-/**
- * Layout principal del sitio con estructura base, navegación, footer y gestión de contexto global.
- */
+// Layout principal del sitio
 
+// Estilos
 import "../styles/global.css";
-import BaseHead from "../components/BaseHead.astro";
-import Search from "../components/Search.astro";
-import ThemeToggle from "../components/ThemeToggle.jsx";
-import LanguagePicker from "../components/LanguagePicker.jsx";
-import MobileMenu from "../components/MobileMenu.jsx";
+import "../styles/pagefind.css";
+// Componentes
+import BaseHead from "../components/layout/BaseHead.astro";
+import Search from "../components/layout/Search.jsx";
+import ThemeToggle from "../components/layout/ThemeToggle.jsx";
+import LanguagePicker from "../components/layout/LanguagePicker.jsx";
+import MobileMenuToggle from "../components/layout/MobileMenuToggle.jsx";
+// i18n
 import { defaultLang, useTranslations } from "../i18n/ui";
 
-// Props con valores por defecto para metadata SEO y configuración de idioma.
+// Props con valores por defecto para metadata SEO y configuración de idioma
 const {
 	title,
 	description = "Un blog sobre desarrollo y tecnología.",
@@ -21,11 +23,11 @@ const {
 	lang = defaultLang,
 } = Astro.props;
 
-// Determina idioma actual: prioridad props > params > default.
+// Determina idioma actual: prioridad props > params > default
 const currentLang = lang || Astro.params.lang || defaultLang;
 const t = useTranslations(currentLang as "es" | "en");
 
-// Importación de fuente Outfit con pesos específicos para optimización de carga.
+// Fuente Outfit con pesos específicos
 import "@fontsource/outfit/300.css";
 import "@fontsource/outfit/400.css";
 import "@fontsource/outfit/500.css";
@@ -35,9 +37,7 @@ import "@fontsource/outfit/700.css";
 <!doctype html>
 <html lang={currentLang}>
     <head>
-        {
-            /* Componente BaseHead: inyecta meta tags SEO, Open Graph, Twitter Cards y JSON-LD */
-        }
+        {/* BaseHead: meta tags SEO, Open Graph, Twitter Cards y JSON-LD */}
         <BaseHead
             title={title}
             description={description}
@@ -46,10 +46,9 @@ import "@fontsource/outfit/700.css";
             publishDate={publishDate}
         />
 
-        {
-            /* Scripts de inicialización ejecutados antes del render: tema y redirección de idioma */
-        }
+        {/* Script de inicialización: tema oscuro y redirección de idioma */}
         <script is:inline>
+            // 1. Restaurar tema desde localStorage
             try {
                 var _s = JSON.parse(localStorage.getItem("fluxdev-store") || "{}");
                 if (_s.state && _s.state.theme === "dark") {
@@ -69,30 +68,31 @@ import "@fontsource/outfit/700.css";
                 }
             }
 
+            // 2. Redirigir a /en/ si el navegador está en inglés
             if (window.location.pathname === "/" && !localStorage.getItem("lang-preference")) {
                 var _l = navigator.language || navigator.userLanguage;
                 if (_l && _l.startsWith("en")) { window.location.href = "/en/"; }
             }
         </script>
+
+        <!-- Pagefind: buscador estático -->
+        <link href="/pagefind/pagefind-ui.css" rel="stylesheet" is:inline />
+        <script src="/pagefind/pagefind-ui.js" is:inline></script>
     </head>
 
     <body
         class="bg-bg-canvas text-text-primary font-light antialiased flex flex-col min-h-screen transition-colors duration-300"
     >
-        {
-            /* 
-          HEADER: Barra de navegación principal
-        */
-        }
+        {/*
+      HEADER: Barra de navegación principal
+    */}
         <header
             class="border-b border-border-subtle bg-bg-canvas/90 sticky top-0 backdrop-blur-sm z-40 transition-colors duration-300"
         >
             <nav
                 class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center gap-4"
             >
-                {
-                    /* Logo: enlace al home del idioma actual (raíz para es, /en para en) */
-                }
+                {/* Logo: enlace al home del idioma actual */}
                 <a
                     href={`/${currentLang === "es" ? "" : currentLang}`}
                     class="font-bold text-xl tracking-tight hover:text-accent transition-colors shrink-0 flex items-center gap-2.5"
@@ -105,17 +105,13 @@ import "@fontsource/outfit/700.css";
                     <span>Flux</span>
                 </a>
 
-				{
-					/* Bloque central: nav links + buscador alineados con el contenido (max-w-3xl) */
-				}
+				{/* Bloque central: nav links + buscador */}
 				<div class="flex-1 flex justify-center">
 					<div class="w-full max-w-3xl flex items-center justify-between">
 						<div class="flex-1 max-w-sm">
-							<Search />
+							<Search client:load />
 						</div>
-						{
-							/* Enlaces de navegación desktop */
-						}
+						{/* Enlaces de navegación desktop */}
 						<div class="hidden sm:flex items-center gap-4 shrink-0">
 							<a
 								href={`/${currentLang === "es" ? "" : currentLang}`}
@@ -131,54 +127,30 @@ import "@fontsource/outfit/700.css";
 					</div>
 				</div>
 
-				{
-					/* Controles desktop: selector de tema e idioma (fuera del contenedor central) */
-				}
+				{/* Controles desktop: selector de tema e idioma */}
 				<div class="flex items-center gap-2 shrink-0">
 					<div class="hidden sm:flex items-center gap-2">
 						<ThemeToggle client:load />
 						<LanguagePicker client:load currentPath={Astro.url.pathname} />
 					</div>
 
-					{
-						/* Botón hamburguesa para abrir menú móvil: visible solo en pantallas pequeñas */
-					}
-					<button
-                        id="mobile-menu-button"
-                        class="sm:hidden p-2 hover:bg-bg-subtle rounded-md transition-colors"
-                        aria-label="Alternar menu"
-                    >
-                        <span
-                            class="icon-[solar--hamburger-menu-outline] w-6 h-6"
-                        ></span>
-                    </button>
+					<MobileMenuToggle client:load lang={currentLang} />
                 </div>
             </nav>
-
-            <MobileMenu client:load lang={currentLang} currentPath={Astro.url.pathname} />
         </header>
 
-
-
-        {
-            /* 
-          MAIN: Contenedor del contenido principal de cada página.
-          - Slot: inyecta el contenido renderizado de la página activa (.md, .astro, etc.)
-          - Estilos: ancho máximo centrado, padding responsivo, animación de entrada
-          - Flex-grow: empuja el footer hacia abajo en páginas con poco contenido
-        */
-        }
+        {/*
+      MAIN: Contenedor del contenido principal. Slot inyecta la página activa.
+    */}
         <main
             class="w-full max-w-3xl mx-auto py-8 sm:py-12 flex-grow animate-fade-in-up"
         >
             <slot />
         </main>
 
-        {
-            /* 
-          FOOTER: Pie de página con cuatro columnas en desktop (una en móvil):
-        */
-        }
+        {/*
+      FOOTER: Cuatro columnas en desktop, una en móvil
+    */}
         <footer
             class="border-t border-border-subtle mt-auto pt-16 pb-8 transition-colors duration-300"
         >
@@ -258,9 +230,7 @@ import "@fontsource/outfit/700.css";
                         </ul>
                     </div>
 
-                    {
-                        /* Columna 3: Enlaces legales con rutas dinámicas por idioma */
-                    }
+                    {/* Columna 3: Enlaces legales */}
                     <div class="flex flex-col gap-4">
                         <h3
                             class="font-bold text-text-primary uppercase tracking-wider text-sm"
@@ -285,9 +255,7 @@ import "@fontsource/outfit/700.css";
                         </ul>
                     </div>
 
-                    {
-                        /* Columna 4: Formulario de suscripción con prevención de submit nativo */
-                    }
+                    {/* Columna 4: Formulario de suscripción */}
                     <div class="flex flex-col gap-4">
                         <h3
                             class="font-bold text-text-primary uppercase tracking-wider text-sm"
@@ -313,9 +281,7 @@ import "@fontsource/outfit/700.css";
                     </div>
                 </div>
 
-                {
-                    /* Barra inferior: créditos, tecnologías y derechos de autor */
-                }
+                {/* Barra inferior: créditos, tecnologías y derechos de autor */}
                 <div
                     class="border-t border-border-subtle pt-8 flex flex-col items-center gap-6"
                 >
@@ -326,9 +292,7 @@ import "@fontsource/outfit/700.css";
                             >
                         </p>
                         <div class="flex flex-wrap justify-center gap-2">
-                            {
-                                /* Badges de tecnologías: hover effect para interacción visual */
-                            }
+                            {/* Badges de tecnologías */}
                             {
                                 ["Astro", "Vite", "Tailwind", "Cloudflare"].map(
                                     (tech) => (
@@ -340,9 +304,7 @@ import "@fontsource/outfit/700.css";
                             }
                         </div>
                     </div>
-                    {
-                        /* Derechos de autor con año dinámico y textos traducidos */
-                    }
+                    {/* Derechos de autor con año dinámico */}
                     <p class="text-xs text-text-muted">
                         &copy; {new Date().getFullYear()}
                         {t("footer.copyright")}

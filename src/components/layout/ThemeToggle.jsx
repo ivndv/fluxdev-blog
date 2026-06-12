@@ -1,11 +1,16 @@
+// React
 import { useEffect } from "react";
-import { useStore } from "../store/store";
+// Store
+import { useStore } from "../../store/store";
 
+// Botón que alterna entre tema claro y oscuro
 function ThemeToggle() {
 	const theme = useStore((s) => s.theme);
 	const toggleTheme = useStore((s) => s.toggleTheme);
 
+	// Sincroniza el tema con el DOM al cambiar
 	useEffect(() => {
+		// 1. Agrega o quita la clase dark según el estado
 		if (theme === "dark") {
 			document.documentElement.classList.add("dark");
 		} else {

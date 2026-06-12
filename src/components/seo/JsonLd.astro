@@ -1,0 +1,28 @@
+---
+// Props del componente
+interface Props {
+	title: string;
+	description: string;
+	url: URL;
+	image: URL;
+	type?: "website" | "article";
+	publishDate?: string;
+}
+
+const { title, description, url, image, type = "website", publishDate } = Astro.props;
+---
+
+<!-- Datos estructurados JSON-LD para motores de búsqueda -->
+<script is:inline type="application/ld+json" set:html={JSON.stringify({
+	"@context": "https://schema.org",
+	"@type": type === "article" ? "BlogPosting" : "WebSite",
+	headline: title,
+	image: image.toString(),
+	url: url.toString(),
+	description: description,
+	author: {
+		"@type": "Person",
+		name: "Flux",
+	},
+	...(type === "article" && publishDate ? { datePublished: publishDate } : {}),
+})} />

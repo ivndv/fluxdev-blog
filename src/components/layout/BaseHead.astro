@@ -1,0 +1,37 @@
+---
+// SEO
+import MetaBase from "../seo/MetaBase.astro";
+import SocialCards from "../seo/SocialCards.astro";
+import JsonLd from "../seo/JsonLd.astro";
+// Analytics
+import UmamiAnalytics from "../analytics/UmamiAnalytics.astro";
+// Validación
+import { validateSeoProps } from "../seo/SeoValidator";
+
+// Props del componente
+interface Props {
+	title: string;
+	description: string;
+	image?: string;
+	type?: "website" | "article";
+	publishDate?: string;
+}
+
+const props = Astro.props;
+
+// 1. Resuelve la URL canónica y la imagen absoluta
+const canonicalURL = new URL(Astro.url.pathname, Astro.site || Astro.url.origin);
+const resolvedImage = new URL(props.image || "/og-main.png", Astro.url);
+
+// 2. Valida las props solo en modo desarrollo
+validateSeoProps(props);
+---
+
+<!-- Meta tags base -->
+<MetaBase title={props.title} description={props.description} canonicalURL={canonicalURL} />
+<!-- Open Graph y Twitter Cards -->
+<SocialCards title={props.title} description={props.description} url={canonicalURL} image={resolvedImage} type={props.type} />
+<!-- Datos estructurados -->
+<JsonLd title={props.title} description={props.description} url={canonicalURL} image={resolvedImage} type={props.type} publishDate={props.publishDate} />
+<!-- Analytics -->
+<UmamiAnalytics />

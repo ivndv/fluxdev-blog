@@ -1,103 +1,39 @@
-/**
- * API de comentarios para el blog: gestión de CRUD con Hono, D1, KV y Turnstile.
- *
- * @description Endpoint para obtener y crear comentarios con validación, rate limiting y cache.
- * @runtime Cloudflare Pages Functions (adaptado desde Workers)
- * @dependencies D1 (persistencia), KV (cache + rate limiting), Turnstile (anti-spam)
- */
-
+// Hono
 import { Hono } from "hono";
+// Sanitización
 import sanitizeHtml from "sanitize-html";
-import { z } from "zod";
+// Compartidos
+import { CommentSchema } from "../_shared/schema";
+import { checkRateLimit } from "../_shared/rateLimit";
+import { verifyTurnstile } from "../_shared/turnstile";
+import { getComments, insertComment } from "../_shared/db";
+import { getCachedComments, setCommentsCache, invalidateCommentsCache } from "../_shared/cache";
 
-/**
- * Bindings de Cloudflare disponibles en el runtime del Worker.
- */
+// Bindings de Cloudflare disponibles en el runtime del Worker
 type Env = {
 	DB: D1Database;
 	KV: KVNamespace;
 	TURNSTILE_SECRET_KEY: string;
 };
 
-const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
-const RATE_LIMIT_MAX_ATTEMPTS = 5;
-const FETCH_TIMEOUT_MS = 5000;
-
 const app = new Hono<{ Bindings: Env }>();
 
-const CommentSchema = z.object({
-	author: z.string().trim().min(1, "Author required").max(50, "Author too long"),
-	content: z.string().trim().min(1, "Content required").max(1000, "Content too long"),
-	token: z.string().min(1, "Captcha token required"),
-});
-
-const checkRateLimit = async (
-	kv: KVNamespace,
-	ip: string,
-): Promise<boolean> => {
-	const key = `rate-limit:comment:${ip}`;
-	const now = Date.now();
-
-	const data = (await kv.get(key, "json")) as {
-		attempts: number;
-		resetAt: number;
-	} | null;
-
-	if (!data || now > data.resetAt) {
-		await kv.put(
-			key,
-			JSON.stringify({ attempts: 1, resetAt: now + RATE_LIMIT_WINDOW_MS }),
-			{ expirationTtl: 900 },
-		);
-		return true;
-	}
-
-	if (data.attempts >= RATE_LIMIT_MAX_ATTEMPTS) {
-		return false;
-	}
-
-	await kv.put(
-		key,
-		JSON.stringify({ attempts: data.attempts + 1, resetAt: data.resetAt }),
-		{
-			expirationTtl: Math.floor((data.resetAt - now) / 1000),
-		},
-	);
-
-	return true;
-};
-
-/**
- * GET /api/comments/:slug - Obtiene comentarios para un post.
- *
- * @behavior
- * - Primero consulta cache en KV (TTL: 5 min)
- * - Si no hay cache, consulta D1 y popula cache
- * - Retorna header X-Cache: HIT/MISS para debugging
- *
- * @response 200: Array de comentarios | 400: Slug faltante | 500: Error de servidor
- */
+// GET /api/comments/:slug - Obtiene comentarios de un post con cache en KV
 app.get("/api/comments/:slug", async (c) => {
 	const slug = c.req.param("slug");
 
 	try {
-		// 1. Intentar obtener desde cache KV
-		const cached = await c.env.KV.get(`comments:${slug}`, "json");
+		// 1. Intenta obtener desde cache KV
+		const cached = await getCachedComments(c.env.KV, slug);
 		if (cached) {
 			return c.json(cached, 200, { "X-Cache": "HIT" });
 		}
 
-		// 2. Consultar D1 si no hay cache
-		const { results } = await c.env.DB.prepare(
-			"SELECT * FROM comments WHERE post_slug = ? ORDER BY created_at DESC",
-		)
-			.bind(slug)
-			.all();
+		// 2. Consulta D1 si no hay cache
+		const results = await getComments(c.env.DB, slug);
 
-		// 3. Guardar resultado en cache por 5 minutos
-		await c.env.KV.put(`comments:${slug}`, JSON.stringify(results), {
-			expirationTtl: 300,
-		});
+		// 3. Guarda en cache por 5 minutos
+		await setCommentsCache(c.env.KV, slug, results);
 
 		return c.json(results, 200, { "X-Cache": "MISS" });
 	} catch (e) {
@@ -106,83 +42,44 @@ app.get("/api/comments/:slug", async (c) => {
 	}
 });
 
-/**
- * POST /api/comments/:slug - Crea un nuevo comentario.
- *
- * @behavior
- * 1. Rate limiting: 5 intentos por IP cada 15 min
- * 2. Validación de entrada con Zod (author, content, token)
- * 3. Verificación de token Turnstile con API de Cloudflare
- * 4. Inserción en D1 con parámetros vinculados (previene SQL injection)
- * 5. Invalidación de cache para el post afectado
- *
- * @response 201: Creado | 400: Validación fallida | 403: Captcha inválido | 429: Rate limit | 500: Error de servidor
- */
+// POST /api/comments/:slug - Crea un comentario con validación y rate limiting
 app.post("/api/comments/:slug", async (c) => {
 	const slug = c.req.param("slug");
 
 	try {
-		// 1. Validación de cuerpo con Zod (antes del rate limit para no gastar intentos con bodies inválidos)
+		// 1. Valida el cuerpo con Zod
 		const body = await c.req.json();
 		const result = CommentSchema.safeParse(body);
 		if (!result.success) {
-			return c.json(
-				{ error: "Invalid data", details: result.error.issues },
-				400,
-			);
+			return c.json({ error: "Invalid data", details: result.error.issues }, 400);
 		}
-		let { author, content, token } = result.data;
+		let { author, content } = result.data;
 
 		// 2. Rate limiting por IP
 		const ip = c.req.header("CF-Connecting-IP") || "unknown";
 		const allowed = await checkRateLimit(c.env.KV, ip);
 		if (!allowed) {
-			return c.json(
-				{ error: "Too many comments. Please try again in 15 minutes." },
-				429,
-			);
+			return c.json({ error: "Too many comments. Please try again in 15 minutes." }, 429);
 		}
 
-		// 3. Sanitizar HTML en contenido (defensa en profundidad)
+		// 3. Sanitiza HTML (defensa en profundidad contra XSS)
 		content = sanitizeHtml(content, { allowedTags: [], allowedAttributes: {} });
 		author = sanitizeHtml(author, { allowedTags: [], allowedAttributes: {} });
 
-		// 4. Verificación de token Turnstile con timeout
-		const formData = new FormData();
-		formData.append("secret", c.env.TURNSTILE_SECRET_KEY);
-		formData.append("response", token);
-		formData.append("remoteip", ip);
-
-		const controller = new AbortController();
-		const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
-		let outcome: { success: boolean };
-		try {
-			const verifyResult = await fetch(
-				"https://challenges.cloudflare.com/turnstile/v0/siteverify",
-				{ method: "POST", body: formData, signal: controller.signal },
-			);
-			outcome = (await verifyResult.json()) as { success: boolean };
-		} finally {
-			clearTimeout(timeoutId);
-		}
-
-		if (!outcome.success) {
+		// 4. Verifica el token Turnstile
+		const turnstileOk = await verifyTurnstile(c.env.TURNSTILE_SECRET_KEY, result.data.token, ip);
+		if (!turnstileOk) {
 			return c.json({ error: "Invalid Captcha" }, 403);
 		}
 
-		// 5. Insertar comentario en D1
-		const { success } = await c.env.DB.prepare(
-			"INSERT INTO comments (post_slug, author, content) VALUES (?, ?, ?)",
-		)
-			.bind(slug, author, content)
-			.run();
-
-		if (!success) {
+		// 5. Inserta el comentario en D1
+		const ok = await insertComment(c.env.DB, slug, author, content);
+		if (!ok) {
 			return c.json({ error: "Failed to add comment" }, 500);
 		}
 
-		// 6. Invalidar cache del post para reflejar nuevo comentario
-		await c.env.KV.delete(`comments:${slug}`);
+		// 6. Invalida la cache del post
+		await invalidateCommentsCache(c.env.KV, slug);
 
 		return c.json({ message: "Comment added" }, 201);
 	} catch (e) {
@@ -191,12 +88,7 @@ app.post("/api/comments/:slug", async (c) => {
 	}
 });
 
-/**
- * Adapter para Cloudflare Pages Functions.
- * Convierte el contexto de Pages al formato que espera Hono.
- * @param context - Contexto de Cloudflare Pages
- * @returns {Promise<Response>} Respuesta generada por Hono
- */
+// Adapter para Cloudflare Pages Functions
 export const onRequest: PagesFunction<Env> = async (context) => {
 	return app.fetch(context.request, context.env);
 };

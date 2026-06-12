@@ -1,0 +1,20 @@
+---
+// Props del componente
+interface Props {
+	title: string;
+	description: string;
+	canonicalURL: URL;
+}
+
+const { title, description, canonicalURL } = Astro.props;
+---
+
+<!-- Configuración base del documento -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<link rel="icon" type="image/png" href="/favicon.png" />
+<meta name="generator" content={Astro.generator} />
+<link rel="canonical" href={canonicalURL} />
+<title>{title}</title>
+<meta name="title" content={title} />
+<meta name="description" content={description} />
