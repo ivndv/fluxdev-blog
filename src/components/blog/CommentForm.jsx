@@ -95,7 +95,11 @@ function CommentForm({ lang, siteKey, submitting, onSubmit }) {
 					/>
 				</div>
 
-				<div id="turnstile-widget" className="cf-turnstile" data-sitekey={siteKey} />
+				<div
+					id="turnstile-widget"
+					className="cf-turnstile"
+					data-sitekey={siteKey}
+				/>
 
 				<div className="flex items-center justify-between pt-2">
 					{msg && (

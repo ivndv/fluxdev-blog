@@ -9,7 +9,14 @@ interface Props {
 	publishDate?: string;
 }
 
-const { title, description, url, image, type = "website", publishDate } = Astro.props;
+const {
+	title,
+	description,
+	url,
+	image,
+	type = "website",
+	publishDate,
+} = Astro.props;
 ---
 
 <!-- Datos estructurados JSON-LD para motores de búsqueda -->

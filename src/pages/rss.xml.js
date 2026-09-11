@@ -5,8 +5,7 @@ import { defaultLang, ui } from "../i18n/ui";
 export async function GET(context) {
 	const posts = await getCollection("blog");
 	const allPosts = posts.sort(
-		(a, b) =>
-			new Date(b.data.date).valueOf() - new Date(a.data.date).valueOf(),
+		(a, b) => new Date(b.data.date).valueOf() - new Date(a.data.date).valueOf(),
 	);
 
 	return rss({

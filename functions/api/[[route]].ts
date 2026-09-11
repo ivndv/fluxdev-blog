@@ -2,12 +2,16 @@
 import { Hono } from "hono";
 // Sanitización
 import sanitizeHtml from "sanitize-html";
+import {
+	getCachedComments,
+	invalidateCommentsCache,
+	setCommentsCache,
+} from "../_shared/cache";
+import { getComments, insertComment } from "../_shared/db";
+import { checkRateLimit } from "../_shared/rateLimit";
 // Compartidos
 import { CommentSchema } from "../_shared/schema";
-import { checkRateLimit } from "../_shared/rateLimit";
 import { verifyTurnstile } from "../_shared/turnstile";
-import { getComments, insertComment } from "../_shared/db";
-import { getCachedComments, setCommentsCache, invalidateCommentsCache } from "../_shared/cache";
 
 // Bindings de Cloudflare disponibles en el runtime del Worker
 type Env = {
@@ -51,7 +55,10 @@ app.post("/api/comments/:slug", async (c) => {
 		const body = await c.req.json();
 		const result = CommentSchema.safeParse(body);
 		if (!result.success) {
-			return c.json({ error: "Invalid data", details: result.error.issues }, 400);
+			return c.json(
+				{ error: "Invalid data", details: result.error.issues },
+				400,
+			);
 		}
 		let { author, content } = result.data;
 
@@ -59,7 +66,10 @@ app.post("/api/comments/:slug", async (c) => {
 		const ip = c.req.header("CF-Connecting-IP") || "unknown";
 		const allowed = await checkRateLimit(c.env.KV, ip);
 		if (!allowed) {
-			return c.json({ error: "Too many comments. Please try again in 15 minutes." }, 429);
+			return c.json(
+				{ error: "Too many comments. Please try again in 15 minutes." },
+				429,
+			);
 		}
 
 		// 3. Sanitiza HTML (defensa en profundidad contra XSS)
@@ -67,7 +77,11 @@ app.post("/api/comments/:slug", async (c) => {
 		author = sanitizeHtml(author, { allowedTags: [], allowedAttributes: {} });
 
 		// 4. Verifica el token Turnstile
-		const turnstileOk = await verifyTurnstile(c.env.TURNSTILE_SECRET_KEY, result.data.token, ip);
+		const turnstileOk = await verifyTurnstile(
+			c.env.TURNSTILE_SECRET_KEY,
+			result.data.token,
+			ip,
+		);
 		if (!turnstileOk) {
 			return c.json({ error: "Invalid Captcha" }, 403);
 		}
@@ -83,7 +97,11 @@ app.post("/api/comments/:slug", async (c) => {
 
 		return c.json({ message: "Comment added" }, 201);
 	} catch (e) {
-		console.error({ error: e instanceof Error ? e.message : e, slug, ip: c.req.header("CF-Connecting-IP") });
+		console.error({
+			error: e instanceof Error ? e.message : e,
+			slug,
+			ip: c.req.header("CF-Connecting-IP"),
+		});
 		return c.json({ error: "Server error" }, 500);
 	}
 });

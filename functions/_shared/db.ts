@@ -5,9 +5,10 @@ export async function getComments(
 	db: D1Database,
 	slug: string,
 ): Promise<unknown[]> {
-	const { results } = await db.prepare(
-		"SELECT * FROM comments WHERE post_slug = ? ORDER BY created_at DESC",
-	)
+	const { results } = await db
+		.prepare(
+			"SELECT * FROM comments WHERE post_slug = ? ORDER BY created_at DESC",
+		)
 		.bind(slug)
 		.all();
 	return results;
@@ -20,9 +21,10 @@ export async function insertComment(
 	author: string,
 	content: string,
 ): Promise<boolean> {
-	const { success } = await db.prepare(
-		"INSERT INTO comments (post_slug, author, content) VALUES (?, ?, ?)",
-	)
+	const { success } = await db
+		.prepare(
+			"INSERT INTO comments (post_slug, author, content) VALUES (?, ?, ?)",
+		)
 		.bind(slug, author, content)
 		.run();
 	return success;

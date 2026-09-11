@@ -1,9 +1,9 @@
 // React
 import { useEffect, useRef } from "react";
-// Store
-import { useStore } from "../../store/store";
 // Traducciones
 import { useTranslations } from "../../i18n/ui";
+// Store
+import { useStore } from "../../store/store";
 // Utilidades
 import { localizeHref } from "../../utils/path";
 
@@ -87,7 +87,11 @@ function MobileMenu({ lang = "es", isOpen, onClose }) {
 							<span
 								className={`icon-[solar--sun-2-outline] w-5 h-5 ${theme === "light" ? "hidden" : ""}`}
 							/>
-							<span>{theme === "dark" ? "Modo Claro / Light Mode" : "Modo Oscuro / Dark Mode"}</span>
+							<span>
+								{theme === "dark"
+									? "Modo Claro / Light Mode"
+									: "Modo Oscuro / Dark Mode"}
+							</span>
 						</button>
 					</div>
 

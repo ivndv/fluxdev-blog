@@ -1,9 +1,9 @@
 // React
-import { useState, useRef, useEffect } from "react";
-// Store
-import { useStore } from "../../store/store";
+import { useEffect, useRef, useState } from "react";
 // Traducciones
 import { languages } from "../../i18n/ui";
+// Store
+import { useStore } from "../../store/store";
 // Utilidades
 import { getLangPath } from "../../utils/path";
 

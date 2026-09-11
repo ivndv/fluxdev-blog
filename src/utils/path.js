@@ -1,7 +1,9 @@
 // Construye la ruta para el idioma seleccionado
 export function getLangPath(targetLang, currentPath) {
 	if (targetLang === "es") {
-		return currentPath.startsWith("/en") ? currentPath.replace(/^\/en/, "") || "/" : currentPath;
+		return currentPath.startsWith("/en")
+			? currentPath.replace(/^\/en/, "") || "/"
+			: currentPath;
 	}
 	if (currentPath.startsWith("/en")) return currentPath;
 	return `/en${currentPath === "/" ? "" : currentPath}`;

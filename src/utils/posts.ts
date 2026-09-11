@@ -1,7 +1,7 @@
 // Utilidades para resolución de rutas y gestión de posts del blog
 
 type PostModule = {
-	frontmatter: { ref_id?: string; [key: string]: unknown };
+	frontmatter?: { ref_id?: string; [key: string]: unknown };
 	url?: string;
 };
 type PostMap = Record<string, PostModule>;

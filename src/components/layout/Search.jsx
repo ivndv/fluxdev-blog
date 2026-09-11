@@ -20,9 +20,7 @@ function Search() {
 		init();
 	}, [id]);
 
-	return (
-		<div id={`search-${id}`} className="ml-auto relative" />
-	);
+	return <div id={`search-${id}`} className="ml-auto relative" />;
 }
 
 export default Search;

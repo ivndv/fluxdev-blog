@@ -24,7 +24,7 @@ export async function verifyTurnstile(
 			signal: controller.signal,
 		});
 		// 2. Parsea la respuesta
-		const data = await res.json() as { success: boolean };
+		const data = (await res.json()) as { success: boolean };
 		return data.success;
 	} catch {
 		// 3. En caso de error de red, retorna false

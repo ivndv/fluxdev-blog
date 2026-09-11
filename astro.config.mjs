@@ -1,18 +1,18 @@
 // @ts-check
 
+import { unified } from "@astrojs/markdown-remark";
 // Integraciones
 import react from "@astrojs/react";
-import { unified } from "@astrojs/markdown-remark";
 import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
+import { defineConfig } from "astro/config";
 // Helpers
 import { toString as toString_ } from "mdast-util-to-string";
 import getReadingTime from "reading-time";
-import { defineConfig } from "astro/config";
 
 // Plugin de remark que calcula el tiempo de lectura del contenido markdown
 function remarkReadingTime() {
-	return (tree, { data }) => {
+	return (/** @type {any} */ tree, /** @type {any} */ { data }) => {
 		const textOnPage = toString_(tree);
 		const readingTime = getReadingTime(textOnPage);
 		data.astro.frontmatter.minutesRead = readingTime.minutes;

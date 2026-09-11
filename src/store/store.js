@@ -2,9 +2,9 @@
 import { create } from "zustand";
 // Middleware
 import { persist } from "zustand/middleware";
+import { createCommentsSlice } from "./slices/commentsSlice";
 // Slices
 import { createPreferencesSlice } from "./slices/preferencesSlice";
-import { createCommentsSlice } from "./slices/commentsSlice";
 
 // Crea el store global combinando slices de preferencias y comentarios
 export const useStore = create(

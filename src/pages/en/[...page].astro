@@ -15,9 +15,7 @@ export async function getStaticPaths({ paginate }) {
 	const enPosts = posts.filter((p) => p.id.startsWith("en/"));
 	// 2. Ordenar por fecha descendente (más recientes primero)
 	const sortedPosts = enPosts.sort(
-		(a, b) =>
-			new Date(b.data.date).valueOf() -
-			new Date(a.data.date).valueOf(),
+		(a, b) => new Date(b.data.date).valueOf() - new Date(a.data.date).valueOf(),
 	);
 	// 3. Paginar con 6 posts por página
 	return paginate(sortedPosts, { pageSize: 6 });

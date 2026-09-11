@@ -1,11 +1,11 @@
 // React
 import { useEffect } from "react";
-// Store
-import { useStore } from "../../store/store";
-// Traducciones
-import { useTranslations } from "../../i18n/ui";
 // Hooks
 import { useTurnstile } from "../../hooks/useTurnstile";
+// Traducciones
+import { useTranslations } from "../../i18n/ui";
+// Store
+import { useStore } from "../../store/store";
 // Componentes
 import CommentCard from "./CommentCard";
 import CommentForm from "./CommentForm";
@@ -30,7 +30,10 @@ function Comments({ slug, lang = "es" }) {
 	}, [slug, fetchComments]);
 
 	return (
-		<div className="mt-16 pt-8 border-t border-border-subtle" id="comments-section">
+		<div
+			className="mt-16 pt-8 border-t border-border-subtle"
+			id="comments-section"
+		>
 			<h3 className="text-2xl font-bold mb-6 text-text-primary">
 				{t("comments.title")}
 			</h3>
@@ -45,7 +48,10 @@ function Comments({ slug, lang = "es" }) {
 					<p className="text-text-muted">{t("comments.empty")}</p>
 				) : (
 					comments.map((comment, idx) => (
-						<div key={comment.id || idx} style={{ animationDelay: `${idx * 100}ms` }}>
+						<div
+							key={comment.id || idx}
+							style={{ animationDelay: `${idx * 100}ms` }}
+						>
 							<CommentCard comment={comment} lang={lang} />
 						</div>
 					))

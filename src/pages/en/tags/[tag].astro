@@ -12,9 +12,7 @@ export async function getStaticPaths() {
 	const posts = await getCollection("blog");
 	const enPosts = posts.filter((p) => p.id.startsWith("en/"));
 	// 2. Extraer etiquetas únicas eliminando duplicados con Set
-	const uniqueTags = [
-		...new Set(enPosts.flatMap((post) => post.data.tags)),
-	];
+	const uniqueTags = [...new Set(enPosts.flatMap((post) => post.data.tags))];
 	// 3. Generar una ruta por cada etiqueta con sus posts filtrados
 	return uniqueTags.map((tag) => {
 		// 3.1. Filtrar posts que contengan la etiqueta actual
