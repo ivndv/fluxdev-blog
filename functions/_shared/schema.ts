@@ -15,5 +15,5 @@ export const CommentSchema = z.object({
 	token: z.string().min(1, "Captcha token required"),
 });
 
-// Tipo inferido del schema (sin token, solo datos útiles)
+// Tipo inferido del schema
 export type CommentInput = z.infer<typeof CommentSchema>;
