@@ -1,63 +1,47 @@
-# Configuración de headers HTTP para Cloudflare Pages.
-# Define políticas de seguridad y estrategias de caché por tipo de recurso.
-# Sintaxis: https://developers.cloudflare.com/pages/configuration/headers/
-
-# ─────────────────────────────────────────────────────────────
-# SECURITY HEADERS - Aplicados a todas las rutas (*)
-# ─────────────────────────────────────────────────────────────
+# Security Headers - Aplicados a todas las rutas
 /*
-  # Previene clickjacking: bloquea carga del sitio en iframes externos
+  # Previene clickjacking
   X-Frame-Options: DENY
   
-  # Previene MIME-sniffing: fuerza al navegador a respetar el Content-Type declarado
+  # Previene MIME-sniffing
   X-Content-Type-Options: nosniff
   
-  # Protección XSS básica para navegadores legacy (obsoleto en Chromium, mantener por compatibilidad)
+  # Protección XSS para navegadores legacy
   X-XSS-Protection: 1; mode=block
   
-  # Control de información de referencia: envía origen solo en mismas condiciones de seguridad
+  # Control de referrer
   Referrer-Policy: strict-origin-when-cross-origin
   
-  # Restringe APIs del navegador a solo las necesarias para este sitio
+  # Deshabilita APIs no necesarias
   Permissions-Policy: camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()
   
-  # Fuerza HTTPS por 1 año con inclusión de subdominios y preload para HSTS
+  # Fuerza HTTPS por 1 año
   Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
   
-  # Content Security Policy: define fuentes permitidas para cada tipo de recurso
-  # - default-src 'self': solo recursos del mismo origen por defecto
-  # - script-src: permite scripts propios, inline/eval (necesario para Astro/React), Cloudflare Insights, Turnstile y Umami
-  # - style-src: permite estilos propios e inline (necesario para CSS-in-JS y critical CSS)
-  # - img-src: permite imágenes propias y data: URLs (para avatares generados)
-  # - font-src: permite fuentes propias y data: URLs
-  # - connect-src: permite fetch/XHR a origen propio, Cloudflare y Umami
-  # - frame-src: permite iframes de Turnstile para validación de captcha
-  # - frame-ancestors 'none': previene que el sitio sea embebido (refuerzo de X-Frame-Options)
-  # - base-uri/form-action 'self': previene inyección de bases o acciones de formulario maliciosas
-  # - object-src 'none': bloquea plugins obsoletos como Flash
-  # - upgrade-insecure-requests: fuerza carga HTTPS de recursos HTTP mixtos
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://static.cloudflareinsights.com https://challenges.cloudflare.com https://umami.fluxdv.icu; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' https://cloudflareinsights.com https://challenges.cloudflare.com https://umami.fluxdv.icu; frame-src 'self' https://challenges.cloudflare.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests;
+  # Content Security Policy - Umami Analytics + Cloudflare Turnstile + CDN Assets
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://static.cloudflareinsights.com https://umami.fluxdv.icu https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://challenges.cloudflare.com; img-src 'self' data: https: https://assets.mgdc.site; font-src 'self' data:; connect-src 'self' https://cloudflareinsights.com https://umami.fluxdv.icu https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests;
 
-# ─────────────────────────────────────────────────────────────
-# CACHE HEADERS - Estrategias por tipo de recurso
-# Formato: max-age (browser), s-maxage (CDN/edge), immutable si aplica
-# ─────────────────────────────────────────────────────────────
+# Cache Headers para Assets Estáticos (JS, CSS)
+# Edge: 30 días | Browser: 1 año (immutable porque tienen hash en el nombre)
+/_astro/*
+  Cache-Control: public, max-age=31536000, s-maxage=2592000, immutable
 
-# Assets con hash en nombre (JS, CSS): cache largo + immutable porque el contenido no cambia sin cambiar el nombre
 /*.js
   Cache-Control: public, max-age=31536000, s-maxage=2592000, immutable
 
 /*.css
   Cache-Control: public, max-age=31536000, s-maxage=2592000, immutable
 
-# Fuentes Web: cache largo, sin immutable porque pueden servir sin hash en algunos casos
+# Fuentes Web
+# Edge: 30 días | Browser: 1 año
 /*.woff2
   Cache-Control: public, max-age=31536000, s-maxage=2592000, immutable
 
 /*.woff
   Cache-Control: public, max-age=31536000, s-maxage=2592000, immutable
 
-# Imágenes: cache largo en browser, cache medio en edge (7 días) para permitir actualizaciones sin purga manual
+# Imágenes
+# Edge: 7 días | Browser: 1 año
 /*.png
   Cache-Control: public, max-age=31536000, s-maxage=604800
 
@@ -76,13 +60,24 @@
 /*.ico
   Cache-Control: public, max-age=31536000, s-maxage=604800
 
-# HTML: cache corto en edge (1 hora) para permitir despliegues rápidos, revalidación en browser para contenido fresco
+# HTML - Cache corto en edge, revalidación en browser
+# Edge: 1 hora | Browser: revalidar siempre
 /*.html
   Cache-Control: public, max-age=0, s-maxage=3600, must-revalidate
 
-# Manifest y Service Worker: sin cache para asegurar que actualizaciones de PWA se propaguen inmediatamente
+# Manifest y Service Worker - Sin cache
 /manifest.json
   Cache-Control: public, max-age=0, must-revalidate
 
 /sw.js
   Cache-Control: public, max-age=0, must-revalidate
+
+# Archivos de indexación (SEO / AI)
+/robots.txt
+  Cache-Control: public, max-age=86400, s-maxage=86400
+
+/sitemap-index.xml
+  Cache-Control: public, max-age=86400, s-maxage=86400
+
+/llms.txt
+  Cache-Control: public, max-age=86400, s-maxage=86400
