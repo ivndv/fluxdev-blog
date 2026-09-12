@@ -1,50 +1,53 @@
-# FluxDev Blog
+# Fluxdev Blog 
 
 ## Descripción
 
-Plataforma web moderna diseñada para compartir artículos, guías técnicas y reflexiones sobre desarrollo web, frontend, backend y productividad. Ofrece una experiencia de lectura rápida, accesible y sin distracciones, con soporte multi-idioma, búsqueda instantánea en el cliente y un sistema interactivo de comentarios respaldado en la nube.
+Plataforma web moderna diseñada para compartir artículos, guías técnicas y reflexiones sobre desarrollo web, arquitectura de software, frontend y backend. El objetivo es ofrecer a los lectores una experiencia rápida, accesible y sin distracciones, con soporte multi-idioma nativo, motor de búsqueda instantánea del lado del cliente mediante WebAssembly y un sistema interactivo de comentarios desplegado en el edge.
 
 ## Características
 
-- **Lectura optimizada y rendimiento estático**: Publicaciones generadas estáticamente para tiempos de carga mínimos y una experiencia de lectura fluida.
-- **Búsqueda instantánea integrada**: Motor de búsqueda en texto completo del lado del cliente mediante WebAssembly, rápido y sin dependencias externas.
-- **Comentarios interactivos en el edge**: Participa en la conversación al final de cada artículo con almacenamiento en SQLite y validación anti-spam.
-- **Soporte multi-idioma**: Interfaz y artículos completamente disponibles en español e inglés con rutas localizadas.
-- **Modo oscuro y claro**: Interfaz adaptable a tus preferencias visuales con transiciones suaves y sin saltos de estilo.
-- **Exploración por etiquetas**: Organización temática de contenido para localizar fácilmente temas de programación, arquitectura y herramientas.
+- **Lectura optimizada y sin distracciones**: Artículos con tipografía cuidada, tiempos estimados de lectura y navegación rápida y ligera.
+- **Búsqueda instantánea de publicaciones**: Encuentra artículos y temas específicos en tiempo real mientras escribes, sin tiempos de espera.
+- **Comentarios y debate interactivo**: Comparte tu opinión y conversa con otros lectores al final de cada publicación con validación segura.
+- **Soporte multi-idioma**: Interfaz y publicaciones completamente disponibles en español e inglés.
+- **Modo oscuro y claro**: Experiencia visual cómoda que se adapta a tus preferencias con transiciones suaves.
+- **Exploración temática por etiquetas**: Clasificación organizada para descubrir con facilidad artículos sobre desarrollo, herramientas y arquitectura.
+- **Diseño totalmente responsivo**: Lectura fluida y adaptable en cualquier dispositivo, desde teléfonos móviles hasta pantallas grandes.
 
 ## Secciones
 
-1. **Inicio**: Portada con los artículos más recientes, publicaciones destacadas y navegación paginada.
-2. **Blog / Artículos**: Listado completo de publicaciones con tiempo estimado de lectura y fecha de publicación.
-3. **Detalle de Artículo**: Lectura inmersiva con formato tipográfico enriquecido, botones para compartir y sección de comentarios.
-4. **Etiquetas**: Explorador temático para descubrir artículos agrupados por tecnologías y conceptos.
-5. **Acerca de**: Información sobre el autor, trayectoria y tecnologías utilizadas en sus proyectos.
+1. **Inicio**: Portada con las publicaciones más recientes, artículos destacados y paginación fluida.
+2. **Blog / Artículos**: Listado completo de publicaciones con cálculo estimado de tiempo de lectura, fecha y filtros.
+3. **Detalle de Artículo**: Lectura inmersiva con formato tipográfico enriquecido, botones para compartir y sección de comentarios en vivo.
+4. **Etiquetas**: Explorador temático para descubrir artículos agrupados por tecnologías y conceptos clave.
+5. **Acerca de**: Perfil profesional del autor, trayectoria y tecnologías utilizadas en sus proyectos.
 6. **Legal**: Términos de uso y políticas de privacidad del sitio.
 
 ## Uso
 
-- **Acceder a la Aplicación**: Entra directamente desde cualquier navegador aquí: [FluxDev Blog](https://fluxdev-nebula.mgdc.site/).
-- **Explorar Contenido**: Navega entre las publicaciones recientes o filtra artículos por etiquetas temáticas.
+- **Visualizar Contenido**: La plataforma ya está activa y puedes explorarla en vivo aquí: [Fluxdev Blog](https://fluxdev-nebula.mgdc.site/).
+- **Explorar Artículos**: Navega entre las publicaciones recientes o filtra por etiquetas para acceder a temas específicos.
 - **Buscar Publicaciones**: Abre la ventana de búsqueda desde la barra superior y escribe palabras clave para encontrar artículos al instante.
-- **Dejar Comentarios**: Comparte tu opinión al final de cualquier publicación mediante el formulario interactivo.
+- **Dejar Comentarios**: Comparte tu opinión al final de cualquier publicación mediante el formulario interactivo protegido con verificación anti-bot.
 - **Alternar Idioma y Tema**: Cambia entre español e inglés y alterna entre modo claro y oscuro con un solo clic desde la barra superior.
 
 ## Tecnologías Utilizadas
 
 - **Frontend**: Astro 7, React 19, Tailwind CSS 4, @fontsource/outfit
-- **Backend**: Cloudflare Pages Functions (Hono 4), Cloudflare D1 (SQLite), Workers KV
-- **Autenticación & Anti-Bot**: Cloudflare Turnstile, sanitize-html
+- **Backend & Edge**: Cloudflare Pages Functions (Hono 4)
+- **Base de Datos & Almacenamiento**: Cloudflare D1 (SQLite), Workers KV, Cloudflare R2
+- **Seguridad**: Cloudflare Turnstile, sanitize-html
 - **Búsqueda**: Pagefind
+- **Analíticas**: Umami Analytics
 - **Estado**: Zustand 5
 - **Validación**: Zod 4
 - **Testing**: Vitest
 - **Herramientas**: Bun, Biome, TypeScript
-- **Infra & CDN**: Cloudflare Pages, Cloudflare R2
+- **Infra & CI/CD**: Cloudflare Pages, GitHub Actions
 
 ## Instalación
 
-1. **Clonar el Repositorio**: Descarga el código de este proyecto en tu máquina usando Git.
+1. **Clonar el Repositorio**: Descarga el código de este proyecto en tu máquina usando Git:
 
 ```bash
 git clone https://github.com/ivndv/fluxdev-blog.git
@@ -56,7 +59,7 @@ git clone https://github.com/ivndv/fluxdev-blog.git
 bun install
 ```
 
-3. **Variables de Entorno**: Crea un archivo `.env` o `.dev.vars` en la raíz con las siguientes variables:
+3. **Variables de Entorno**: Crea un archivo `.dev.vars` o `.env` en la raíz con las siguientes variables:
 
 ```env
 PUBLIC_TURNSTILE_SITE_KEY=tu_turnstile_site_key
@@ -75,7 +78,7 @@ bun run dev:full
 
 ## Despliegue
 
-La aplicación está construida para ser sumamente ligera y se encuentra desplegada de forma global a través de Cloudflare Pages. Puedes usarla directamente aquí: [fluxdev-nebula.mgdc.site](https://fluxdev-nebula.mgdc.site/)
+La plataforma está construida para ofrecer la máxima velocidad con generación estática (SSG) y API distribuida en el edge, desplegada de forma global a través de Cloudflare Pages. Puedes usarla directamente aquí: [fluxdev-nebula.mgdc.site](https://fluxdev-nebula.mgdc.site/)
 
 ## Licencia
 
