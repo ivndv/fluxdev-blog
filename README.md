@@ -45,45 +45,11 @@ Plataforma web moderna diseñada para compartir artículos, guías técnicas y r
 - **Herramientas**: Bun, Biome, TypeScript
 - **Infra & CI/CD**: Cloudflare Pages, GitHub Actions
 
-## Instalación
-
-1. **Clonar el Repositorio**: Descarga el código de este proyecto en tu máquina usando Git:
-
-```bash
-git clone https://github.com/ivndv/fluxdev-blog.git
-```
-
-2. **Instalar Dependencias**: Abre una terminal en la carpeta del proyecto y ejecuta:
-
-```bash
-bun install
-```
-
-3. **Variables de Entorno**: Crea un archivo `.dev.vars` o `.env` en la raíz con las siguientes variables:
-
-```env
-PUBLIC_TURNSTILE_SITE_KEY=tu_turnstile_site_key
-TURNSTILE_SECRET_KEY=tu_turnstile_secret_key
-```
-
-4. **Iniciar el Proyecto**:
-
-```bash
-# Solo frontend (Astro):
-bun run dev
-
-# Full stack con API (Cloudflare Pages Functions + D1 y KV):
-bun run dev:full
-```
 
 ## Despliegue
 
-La plataforma está construida para ofrecer la máxima velocidad con generación estática (SSG) y API distribuida en el edge, desplegada de forma global a través de Cloudflare Pages. Puedes usarla directamente aquí: [fluxdev-nebula.mgdc.site](https://fluxdev-nebula.mgdc.site/)
+La plataforma está construida para ofrecer la máxima velocidad con generación estática (SSG) y API distribuida en el edge, desplegada de forma global a través de Cloudflare Pages. Puedes usarla directamente aquí: [Fluxblog](https://fluxdev-nebula.mgdc.site/)
 
 ## Licencia
 
-Licencia de Uso Personal:
-
-Este software es propiedad de **Ivan Cruz**. Se permite el uso de este software solo para fines personales y no comerciales. No se permite la distribución, modificación ni uso comercial de este software sin el consentimiento expreso de **Ivan Cruz**.
-
-Cualquier uso no autorizado puede resultar en acciones legales.
+[MIT](LICENSE) © 2026 Ivan Cruz
