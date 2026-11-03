@@ -59,14 +59,22 @@ Guía operativa y técnica para agentes de Inteligencia Artificial que colaboren
 ```
 fluxdev-blog/
 ├── functions/                     → Backend Edge (Cloudflare Pages Functions)
-│   ├── _shared/                   → Módulos compartidos del backend
-│   │   ├── cache.ts               → Helpers de lectura, escritura e invalidación en KV (TTL 300s)
-│   │   ├── db.ts                  → Consultas SQL a Cloudflare D1 (getComments, insertComment)
-│   │   ├── rateLimit.ts           → Control de tasa por IP en KV (5 req / 60s)
-│   │   ├── schema.ts              → Esquemas de validación Zod (CommentSchema)
-│   │   └── turnstile.ts           → Verificación de token captcha contra API de Cloudflare
-│   └── api/
-│       └── [[route]].ts           → Entry point Hono con endpoints REST (/api/comments/:slug)
+│   ├── api/
+│   │   └── [[route]].ts           → Entry point Hono: GET/POST /api/comments/:slug
+│   ├── _controllers/              → Orquestación de casos de uso
+│   │   ├── commentsController.ts  → Controlador con inyección de dependencias
+│   │   └── commentsController.test.ts
+│   ├── _services/                 → Integraciones con servicios externos
+│   │   ├── cacheService.ts        → Caché de comentarios en KV (TTL 300s, X-Cache HIT/MISS)
+│   │   ├── dbService.ts           → Consultas SQL a Cloudflare D1 (getComments, insertComment)
+│   │   ├── rateLimiter.ts         → Control de tasa por IP en KV (5 intentos / 15 min)
+│   │   ├── rateLimiter.test.ts
+│   │   ├── turnstileValidator.ts  → Verificación de token captcha (timeout 5s)
+│   │   └── turnstileValidator.test.ts
+│   └── _shared/                   → Contratos y validación compartida
+│       ├── schema.ts              → Esquema de validación Zod (CommentSchema)
+│       ├── schema.test.ts
+│       └── types.ts               → Tipos Env, Comment y ApiResponse
 │
 ├── public/                        → Assets estáticos públicos directos
 │   ├── _headers                   → Reglas de seguridad (CSP, HSTS) y caché por extensión
@@ -87,6 +95,7 @@ fluxdev-blog/
 │   │   │   ├── BaseHead.astro     → Metadatos generales, fuentes y Open Graph
 │   │   │   ├── LanguagePicker.jsx → Selector de idioma reactivo (ES / EN)
 │   │   │   ├── MobileMenu.jsx     → Menú desplegable para dispositivos móviles
+│   │   │   ├── MobileMenuToggle.jsx → Toggle de apertura y cierre del menú móvil
 │   │   │   ├── Search.jsx         → Interfaz modal de búsqueda con Pagefind
 │   │   │   ├── ShareButtons.jsx   → Botones para compartir artículos en redes
 │   │   │   └── ThemeToggle.jsx    → Selector de tema (claro / oscuro / sistema)
@@ -111,8 +120,10 @@ fluxdev-blog/
 │   │   └── en/                    → Rutas localizadas para inglés ([...page], blog, tags, about)
 │   │
 │   ├── store/                     → Gestión de estado global con Zustand
-│   │   ├── store.js               → Store unificado
-│   │   └── slices/                → commentsSlice.js (fetch, submit, estados de carga)
+│   │   ├── store.js               → Store unificado con persistencia
+│   │   └── slices/                → Slices del store
+│   │       ├── commentsSlice.js   → fetch, submit y estados de carga de comentarios
+│   │       └── preferencesSlice.js → Tema (light/dark) e idioma (es/en)
 │   ├── styles/                    → Estilos globales (global.css con Tailwind 4)
 │   ├── test/                      → Configuración de pruebas (setup.ts para Vitest)
 │   └── utils/                     → Funciones de utilidad (date, path, posts, string)
@@ -135,18 +146,35 @@ fluxdev-blog/
         ├── Carga de Páginas / Artículos: Servido desde CDN Edge (HTML estático + CSS + JS)
         ├── Búsqueda de Texto: Pagefind (WASM + Índices estáticos en /dist/pagefind/)
         │
-        └── Envío de Comentarios:
+        ├── Lectura de Comentarios:  GET /api/comments/:slug
+        │        │
+        │        ├── 1. Cache: Lee la clave comments:<slug> en KV (TTL 300s)
+        │        ├── 2. Cache HIT: responde con header X-Cache: HIT
+        │        ├── 3. Cache MISS: consulta Cloudflare D1 (ORDER BY created_at DESC)
+        │        └── 4. Guarda en KV y responde con header X-Cache: MISS
+        │
+        └── Envío de Comentarios:  POST /api/comments/:slug
                  │
-                 ▼  POST /api/comments/:slug
-        [ Cloudflare Pages Functions (Hono 4) ]
+                 ▼
+        [ commentsController (Hono 4 en Pages Functions) ]
                  │
-                 ├── 1. Rate Limiting: Verifica IP en KV (máx 5 peticiones / 60 seg)
-                 ├── 2. Validación: CommentSchema con Zod (author, content, token)
-                 ├── 3. Anti-Bot: Valida token contra Cloudflare Turnstile API
-                 ├── 4. Sanitización: Limpieza de HTML para prevenir XSS
+                 ├── 1. Validación: CommentSchema con Zod (author, content, token)
+                 ├── 2. Rate limit: 5 intentos / 15 min por CF-Connecting-IP (KV, TTL 900s)
+                 ├── 3. Sanitización: sanitize-html sin tags ni atributos permitidos
+                 ├── 4. Anti-bot: Verificación del token contra Turnstile siteverify
                  ├── 5. Persistencia: INSERT en Cloudflare D1 (SQLite)
-                 └── 6. Invalidación: Purga la clave comments:slug en KV Cache
+                 └── 6. Invalidación: Borra la clave comments:<slug> de KV
 ```
+
+Respuestas del endpoint de escritura:
+
+| Código | Situación |
+| :--- | :--- |
+| `201` | Comentario creado |
+| `400` | Cuerpo inválido según `CommentSchema` |
+| `403` | Token de Turnstile inválido |
+| `429` | Límite de 5 comentarios por 15 minutos excedido |
+| `500` | Error de D1 o fallo interno |
 
 ---
 
