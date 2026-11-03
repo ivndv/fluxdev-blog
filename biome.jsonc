@@ -9,7 +9,9 @@
 	},
 	// Configuración de archivos
 	"files": {
-		"ignoreUnknown": false // No ignora archivos desconocidos
+		"ignoreUnknown": false, // No ignora archivos desconocidos
+		// El contenido editorial (Markdown) no se formatea como código
+		"includes": ["**", "!**/*.md"]
 	},
 	"css": {
 		"parser": {

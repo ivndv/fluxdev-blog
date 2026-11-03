@@ -1,4 +1,4 @@
-# fluxdev-blog CI/CD: lint y tests en paralelo, deploy solo en push a main
+# fluxdev-blog CI/CD: lint, tipos y pruebas en paralelo; deploy solo desde main
 name: fluxdev-blog CI/CD
 
 on:
@@ -22,7 +22,7 @@ permissions:
 
 jobs:
   lint:
-    name: Lint & Format Check
+    name: Lint y formato
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -33,14 +33,25 @@ jobs:
       - name: Setup Bun env
         uses: ./.github/actions/setup
 
-      - name: Lint
-        run: bun run lint
+      - name: Biome CI
+        run: bunx biome ci .
 
-      - name: Format check
-        run: bun run check
+  types:
+    name: Tipos
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Setup Bun env
+        uses: ./.github/actions/setup
+
+      - name: Type check
+        run: bun run typecheck
 
   test:
-    name: Unit tests
+    name: Pruebas
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -54,9 +65,9 @@ jobs:
         run: bun run test
 
   deploy:
-    name: Deploy to Cloudflare Pages
+    name: Deploy a Cloudflare Pages
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    needs: [lint, test]
+    needs: [lint, types, test]
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -71,9 +82,9 @@ jobs:
         env:
           PUBLIC_TURNSTILE_SITE_KEY: ${{ secrets.PUBLIC_TURNSTILE_SITE_KEY }}
 
-      - name: Deploy to Cloudflare Pages
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy dist/ --project-name=fluxdev-blog
+      # Usa el wrangler lockeado en el proyecto, no el de la action
+      - name: Deploy a Cloudflare Pages
+        run: bunx wrangler pages deploy dist/ --project-name=fluxdev-blog --branch=main
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

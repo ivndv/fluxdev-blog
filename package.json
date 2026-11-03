@@ -12,7 +12,8 @@
 		"check": "biome check . --write",
 		"lint": "biome lint .",
 		"format": "biome format . --write",
-		"test": "vitest run"
+		"test": "vitest run",
+		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
 		"@astrojs/check": "^0.9.12",
