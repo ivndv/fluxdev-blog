@@ -14,6 +14,7 @@ const blog = defineCollection({
 		date: z.string(), // Fecha de publicación (YYYY-MM-DD)
 		description: z.string(), // Descripción corta
 		tags: z.array(z.string()), // Etiquetas del post
+		image: z.string().optional(), // Portada del post servida desde R2
 	}),
 });
 

@@ -2,6 +2,7 @@
 ref_id: blog-que-nos-motiva-a-aprender
 title: "¿Qué nos motiva a aprender? Factores clave para el crecimiento"
 date: "2025-12-22"
+image: "https://assets.mgdc.site/fluxdevblog/covers/blog-que-nos-motiva-a-aprender-v2.png"
 description: "Explora los impulsores internos y externos del aprendizaje y cómo maximizar tu potencial educativo."
 tags: ["motivación", "educación", "desarrollo personal", "psicología"]
 ---

@@ -2,6 +2,7 @@
 ref_id: blog-hacks-productividad
 title: "5 Hacks de Productividad para Desarrolladores"
 date: "2026-01-02"
+image: "https://assets.mgdc.site/fluxdevblog/covers/blog-hacks-productividad-v2.png"
 description: "Mejora tu flujo de trabajo con estos consejos prácticos y herramientas que todo desarrollador debería conocer."
 tags: ["productividad", "consejos", "herramientas", "lifestyle"]
 ---

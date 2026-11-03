@@ -2,6 +2,7 @@
 ref_id: blog-react-hooks
 title: "React Hooks: Basic Guide to useState and useEffect"
 date: "2026-01-10"
+image: "https://assets.mgdc.site/fluxdevblog/covers/en/blog-react-hooks-v2.png"
 description: "Learn the fundamentals of React Hooks. useState for state and useEffect for side effects, explained with simple examples."
 tags: ["react", "javascript", "frontend", "hooks"]
 ---

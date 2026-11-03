@@ -20,6 +20,7 @@ const t = useTranslations(lang);
 <Layout
     title={frontmatter.title}
     description={frontmatter.description}
+    image={frontmatter.image}
     type="article"
     publishDate={frontmatter.date}
     lang={lang}
@@ -30,7 +31,7 @@ const t = useTranslations(lang);
         {/* Enlace de navegación: regresar al listado de posts */}
         <div class="mb-6">
             <a
-                href={`/${lang === "es" ? "" : lang}`}
+                href={`/${lang === "es" ? "blog" : "en/blog"}`}
                 class="no-underline inline-flex items-center gap-2 text-sm font-bold text-text-muted hover:text-accent transition-colors group"
             >
                 <span
@@ -39,6 +40,20 @@ const t = useTranslations(lang);
                 {t("blog.back")}
             </a>
         </div>
+
+        {/* Portada del artículo servida desde R2 */}
+        {
+            frontmatter.image && (
+                <img
+                    src={frontmatter.image}
+                    alt={frontmatter.title}
+                    width="1200"
+                    height="630"
+                    loading="eager"
+                    class="mb-8 w-full rounded-xl border border-border-subtle object-cover"
+                />
+            )
+        }
 
         {/* Cabecera del artículo: título, metadata y etiquetas */}
         <div class="mb-8 border-b border-border-subtle pb-6">

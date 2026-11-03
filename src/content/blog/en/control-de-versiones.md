@@ -2,6 +2,7 @@
 ref_id: blog-control-de-versiones
 title: "Version Control"
 date: "2025-12-23"
+image: "https://assets.mgdc.site/fluxdevblog/covers/en/blog-control-de-versiones-v2.png"
 description: "A system that records changes made to files over time, allowing you to recall specific versions later."
 tags: ["git", "programming", "development", "tools"]
 ---

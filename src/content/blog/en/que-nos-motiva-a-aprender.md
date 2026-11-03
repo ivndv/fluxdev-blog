@@ -2,6 +2,7 @@
 ref_id: blog-que-nos-motiva-a-aprender
 title: "What Motivates Us to Learn? Key Factors for Growth"
 date: "2025-12-22"
+image: "https://assets.mgdc.site/fluxdevblog/covers/en/blog-que-nos-motiva-a-aprender-v2.png"
 description: "Explore the internal and external drivers of learning and how to maximize your educational potential."
 tags: ["motivation", "education", "personal development", "psychology"]
 ---

@@ -2,6 +2,7 @@
 ref_id: blog-lifelong-learning
 title: "Lifelong Learning: The Art of Never Stopping Learning"
 date: "2025-12-22"
+image: "https://assets.mgdc.site/fluxdevblog/covers/en/blog-lifelong-learning-v2.png"
 description: "Why learning doesn't end at school and how to adopt it as a lifestyle."
 tags: ["learning", "growth", "career", "philosophy"]
 ---
