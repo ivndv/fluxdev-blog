@@ -31,6 +31,9 @@ export const createCommentsController = (
 		 */
 		async getComments(c: Context<{ Bindings: Env }>) {
 			const slug = c.req.param("slug");
+			if (!slug) {
+				return c.json<ApiResponse>({ error: "Missing slug" }, 400);
+			}
 
 			try {
 				// 1. Intenta obtener desde cache KV
@@ -57,6 +60,9 @@ export const createCommentsController = (
 		 */
 		async createComment(c: Context<{ Bindings: Env }>) {
 			const slug = c.req.param("slug");
+			if (!slug) {
+				return c.json<ApiResponse>({ error: "Missing slug" }, 400);
+			}
 
 			try {
 				// 1. Valida el cuerpo con Zod
