@@ -21,6 +21,8 @@ const {
 	type = "website",
 	publishDate,
 	lang = defaultLang,
+	wide = false,
+	flush = false,
 } = Astro.props;
 
 // Determina idioma actual: prioridad props > params > default
@@ -92,49 +94,54 @@ import "@fontsource/outfit/700.css";
             <nav
                 class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center gap-4"
             >
-                {/* Logo: enlace al home del idioma actual */}
-                <a
-                    href={`/${currentLang === "es" ? "" : currentLang}`}
-                    class="font-bold text-xl tracking-tight hover:text-accent transition-colors shrink-0 flex items-center gap-2.5"
+                {/* Izquierda: logo y buscador */}
+                <div class="flex flex-1 items-center gap-4 min-w-0">
+                    <a
+                        href={`/${currentLang === "es" ? "" : currentLang}`}
+                        class="font-bold text-xl tracking-tight hover:text-accent transition-colors shrink-0 flex items-center gap-2.5"
+                    >
+                        <img
+                            src="https://assets.mgdc.site/fluxdevblog/logo.png"
+                            alt="FluxDev Logo"
+                            class="w-8 h-8 rounded-lg shadow-sm"
+                        />
+                        <span>Flux</span>
+                    </a>
+
+                    <div class="hidden md:block w-full max-w-xs">
+                        <Search client:load />
+                    </div>
+                </div>
+
+                {/* Centro: enlaces de navegación */}
+                <div class="hidden sm:flex items-center gap-6 shrink-0">
+                    <a
+                        href={`/${currentLang === "es" ? "" : currentLang}`}
+                        class="hover:text-accent transition-colors text-sm font-medium"
+                        >{t("nav.home")}</a
+                    >
+                    <a
+                        href={`/${currentLang === "es" ? "blog" : "en/blog"}`}
+                        class="hover:text-accent transition-colors text-sm font-medium"
+                        >{t("nav.blog")}</a
+                    >
+                    <a
+                        href={`/${currentLang === "es" ? "about" : "en/about"}`}
+                        class="hover:text-accent transition-colors text-sm font-medium"
+                        >{t("nav.about")}</a
+                    >
+                </div>
+
+                {/* Derecha: controles de tema, idioma y menú móvil */}
+                <div
+                    class="flex flex-1 items-center justify-end gap-2 shrink-0"
                 >
-                    <img
-                        src="https://assets.mgdc.site/fluxdevblog/logo.png"
-                        alt="FluxDev Logo"
-                        class="w-8 h-8 rounded-lg shadow-sm"
-                    />
-                    <span>Flux</span>
-                </a>
+                    <div class="hidden sm:flex items-center gap-2">
+                        <ThemeToggle client:load />
+                        <LanguagePicker client:load currentPath={Astro.url.pathname} />
+                    </div>
 
-				{/* Bloque central: nav links + buscador */}
-				<div class="flex-1 flex justify-center">
-					<div class="w-full max-w-3xl flex items-center justify-between">
-						<div class="flex-1 max-w-sm">
-							<Search client:load />
-						</div>
-						{/* Enlaces de navegación desktop */}
-						<div class="hidden sm:flex items-center gap-4 shrink-0">
-							<a
-								href={`/${currentLang === "es" ? "" : currentLang}`}
-								class="hover:text-accent transition-colors text-sm font-medium"
-								>{t("nav.home")}</a
-							>
-							<a
-								href={`/${currentLang === "es" ? "about" : "en/about"}`}
-								class="hover:text-accent transition-colors text-sm font-medium"
-								>{t("nav.about")}</a
-							>
-						</div>
-					</div>
-				</div>
-
-				{/* Controles desktop: selector de tema e idioma */}
-				<div class="flex items-center gap-2 shrink-0">
-					<div class="hidden sm:flex items-center gap-2">
-						<ThemeToggle client:load />
-						<LanguagePicker client:load currentPath={Astro.url.pathname} />
-					</div>
-
-					<MobileMenuToggle client:load lang={currentLang} />
+                    <MobileMenuToggle client:load lang={currentLang} />
                 </div>
             </nav>
         </header>
@@ -143,7 +150,7 @@ import "@fontsource/outfit/700.css";
       MAIN: Contenedor del contenido principal. Slot inyecta la página activa.
     */}
         <main
-            class="w-full max-w-3xl mx-auto py-8 sm:py-12 flex-grow animate-fade-in-up"
+            class={`w-full ${wide ? "max-w-6xl" : "max-w-3xl"} mx-auto px-4 sm:px-6 ${flush ? "py-0" : "py-8 sm:py-12"} flex-grow animate-fade-in-up`}
         >
             <slot />
         </main>
@@ -218,6 +225,13 @@ import "@fontsource/outfit/700.css";
                                     href={`/${currentLang === "es" ? "" : currentLang}`}
                                     class="hover:text-accent transition-colors"
                                     >{t("nav.home")}</a
+                                >
+                            </li>
+                            <li>
+                                <a
+                                    href={`/${currentLang === "es" ? "blog" : "en/blog"}`}
+                                    class="hover:text-accent transition-colors"
+                                    >{t("nav.blog")}</a
                                 >
                             </li>
                             <li>

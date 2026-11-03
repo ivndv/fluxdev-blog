@@ -11,16 +11,20 @@ export const defaultLang = "es";
 export const ui = {
 	es: {
 		"nav.home": "Inicio",
+		"nav.blog": "Blog",
 		"nav.about": "Acerca de",
+		"blog.title": "Artículos",
+		"blog.subtitle":
+			"Guías, tutoriales y reflexiones sobre desarrollo de software, frontend, backend y productividad.",
 		"blog.readMore": "Leer más",
 		"blog.readTime": "min lectura",
 		"blog.published": "Publicado el",
-		"blog.back": "Volver al inicio",
+		"blog.back": "Volver al blog",
 		"footer.copyright": "Flux.",
 		"footer.rights": "Todos los derechos reservados.",
 		"footer.developedBy": "Desarrollado por",
 		"footer.description":
-			"Un espacio para compartir conocimientos sobre desarrollo, tecnología y crecimiento personal.",
+			"Un espacio para compartir conocimientos sobre desarrollo, tecnología y herramientas.",
 		"footer.nav": "Navegación",
 		"footer.legal": "Legal",
 		"footer.subscribe": "Suscríbete",
@@ -31,11 +35,14 @@ export const ui = {
 		"search.placeholder": "Buscar...",
 		"tags.exploring": "Explorando",
 		"tags.title": "Artículos sobre",
-		"home.hero.title":
-			"Desarrollo de software, crecimiento personal, tutoriales y",
+		"home.hero.badge": "Blog personal",
+		"home.hero.title": "Desarrollo de software, tutoriales y",
 		"home.hero.subtitle": "un poco de mí.",
+		"home.hero.cta": "Ver artículos",
+		"home.hero.ctaAlt": "Acerca de mí",
+		"home.articles": "artículos",
 		"home.welcome":
-			"¡Bienvenido a mi blog! Estaré compartiendo artículos sobre desarrollo de software, tecnología y productividad. Mi objetivo es ayudarte a crecer tanto profesional como personalmente con base en mis estudios, experiencia y aprendizajes.",
+			"Escribo sobre desarrollo web, herramientas y las cosas que voy aprendiendo en el camino. Artículos técnicos, guías prácticas y notas de lo que construyo.",
 		"home.popular": "Temas Populares",
 		"home.note": "Nota:",
 		"home.note2":
@@ -56,16 +63,20 @@ export const ui = {
 	},
 	en: {
 		"nav.home": "Home",
+		"nav.blog": "Blog",
 		"nav.about": "About",
+		"blog.title": "Articles",
+		"blog.subtitle":
+			"Guides, tutorials and reflections on software development, frontend, backend and productivity.",
 		"blog.readMore": "Read more",
 		"blog.readTime": "min read",
 		"blog.published": "Published on",
-		"blog.back": "Back to home",
+		"blog.back": "Back to blog",
 		"footer.copyright": "Flux.",
 		"footer.rights": "All rights reserved.",
 		"footer.developedBy": "Developed by",
 		"footer.description":
-			"A space to share knowledge about development, technology, and personal growth.",
+			"A space to share knowledge about development, technology and tooling.",
 		"footer.nav": "Navigation",
 		"footer.legal": "Legal",
 		"footer.subscribe": "Subscribe",
@@ -76,10 +87,14 @@ export const ui = {
 		"search.placeholder": "Search...",
 		"tags.exploring": "Exploring",
 		"tags.title": "Articles about",
-		"home.hero.title": "Software development, personal growth, tutorials and",
+		"home.hero.badge": "Personal blog",
+		"home.hero.title": "Software development, tutorials and",
 		"home.hero.subtitle": "a bit of me.",
+		"home.hero.cta": "Read articles",
+		"home.hero.ctaAlt": "About me",
+		"home.articles": "articles",
 		"home.welcome":
-			"Welcome to my blog! I will be sharing articles about software development, technology and productivity. My goal is to help you grow both professionally and personally based on my studies, experience and learnings.",
+			"I write about web development, tooling and the things I learn along the way. Technical articles, practical guides and notes from what I build.",
 		"home.popular": "Popular Topics",
 		"home.note": "Note:",
 		"home.note2":

@@ -61,6 +61,12 @@ function MobileMenu({ lang = "es", isOpen, onClose }) {
 					{t("nav.home")}
 				</a>
 				<a
+					href={localizeHref("/blog", isEn)}
+					className="px-4 py-2 hover:bg-bg-subtle rounded-md transition-colors text-sm font-medium"
+				>
+					{t("nav.blog")}
+				</a>
+				<a
 					href={localizeHref("/about", isEn)}
 					className="px-4 py-2 hover:bg-bg-subtle rounded-md transition-colors text-sm font-medium"
 				>

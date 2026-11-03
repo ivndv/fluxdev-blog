@@ -1,0 +1,90 @@
+---
+// Astro Content
+import { getCollection } from "astro:content";
+// Internacionalización
+import { useTranslations } from "../i18n/ui";
+// Layouts
+import Layout from "../layouts/Layout.astro";
+
+export const prerender = true;
+
+const lang = "es";
+const t = useTranslations(lang);
+
+// Total de artículos publicados en español para la línea inferior del hero
+const posts = await getCollection("blog");
+const totalPosts = posts.filter((post) => !post.id.startsWith("en/")).length;
+---
+
+<Layout title="Inicio | Mi Blog" lang="es" wide flush>
+	{/* Hero: única sección de la portada, centrada y sin tarjeta */}
+	<section
+		class="relative flex min-h-[calc(100svh-65px)] items-center justify-center overflow-hidden"
+	>
+		{/* Fondo: grid punteado difuminado hacia los bordes */}
+		<div
+			class="pointer-events-none absolute inset-0 [background-image:radial-gradient(circle_at_center,var(--border-subtle)_1px,transparent_1px)] [background-size:24px_24px] [mask-image:radial-gradient(ellipse_at_center,black_15%,transparent_70%)]"
+			aria-hidden="true"
+		>
+		</div>
+
+		<div class="relative w-full max-w-4xl text-center">
+			{/* Kicker con líneas de acento */}
+			<div class="flex items-center justify-center gap-3">
+				<span class="h-px w-10 bg-accent"></span>
+				<span
+					class="text-xs font-bold uppercase tracking-[0.2em] text-text-muted"
+				>
+					{t("home.hero.badge")}
+				</span>
+				<span class="h-px w-10 bg-accent"></span>
+			</div>
+
+			<h1
+				class="mt-8 text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tighter text-balance text-text-primary leading-[1.1]"
+			>
+				{t("home.hero.title")}
+				<span class="mt-2 block text-accent">{t("home.hero.subtitle")}</span>
+			</h1>
+
+			<p
+				class="mx-auto mt-8 max-w-3xl text-base sm:text-lg text-text-secondary leading-relaxed"
+			>
+				{t("home.welcome")}
+			</p>
+
+			<div
+				class="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row sm:gap-6"
+			>
+				<a
+					href="/blog"
+					class="group inline-flex items-center gap-2 rounded-full bg-accent px-7 py-3.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-accent-hover"
+				>
+					{t("home.hero.cta")}
+					<span
+						class="icon-[solar--alt-arrow-right-outline] h-4 w-4 transition-transform group-hover:translate-x-1"
+					></span>
+				</a>
+				<a
+					href="/about"
+					class="group inline-flex items-center text-sm font-bold text-text-primary"
+				>
+					<span
+						class="border-b border-border-hover pb-0.5 transition-colors group-hover:border-accent group-hover:text-accent"
+					>
+						{t("home.hero.ctaAlt")}
+					</span>
+				</a>
+			</div>
+
+			{/* Línea inferior: cantidad de artículos e idiomas disponibles */}
+			<div
+				class="mt-16 flex items-center justify-center gap-3 text-xs font-medium uppercase tracking-wider text-text-muted"
+			>
+				<span>{totalPosts} {t("home.articles")}</span>
+				<span class="h-1 w-1 rounded-full bg-border-hover"></span>
+				<span>ES / EN</span>
+			</div>
+		</div>
+	</section>
+</Layout>

@@ -1,0 +1,68 @@
+---
+// Tarjeta reutilizable para listar artículos
+import { useTranslations } from "../../i18n/ui";
+
+const { post, lang = "es" } = Astro.props;
+const t = useTranslations(lang);
+
+// Ruta pública del post: los posts en inglés viven bajo /en/blog
+const href =
+	lang === "en"
+		? `/en/blog/${post.id.replace("en/", "")}`
+		: `/blog/${post.id}`;
+---
+
+<article
+	class="bg-bg-card p-6 rounded-lg shadow-sm border border-border-subtle hover:border-accent hover:shadow-md transition duration-300 flex flex-col h-full"
+>
+	{/* Portada del post servida desde R2 */}
+	{
+		post.data.image && (
+			<img
+				src={post.data.image}
+				alt=""
+				width="1200"
+				height="630"
+				loading="lazy"
+				class="mb-4 w-full aspect-[1200/630] rounded-md border border-border-subtle object-cover"
+			/>
+		)
+	}
+
+	{/* Metadata: fecha y tiempo estimado de lectura */}
+	<div class="flex justify-between items-center mb-3">
+		<div class="flex items-center gap-2 text-xs text-text-muted font-medium">
+			<span>{post.data.date}</span>
+			<span>•</span>
+			<span class="text-accent font-bold bg-accent-bg px-2 py-0.5 rounded-full">
+				{Math.ceil(post.data.minutesRead || 1)}
+				{t("blog.readTime")}
+			</span>
+		</div>
+	</div>
+
+	{/* Título del post con enlace a la página individual */}
+	<h2
+		class="text-xl md:text-2xl font-bold mb-3 text-text-primary leading-tight"
+	>
+		<a href={href} class="hover:text-accent transition-colors">
+			{post.data.title}
+		</a>
+	</h2>
+
+	{/* Descripción truncada a 3 líneas */}
+	<p
+		class="text-text-secondary mb-6 line-clamp-3 flex-grow text-sm md:text-base"
+	>
+		{post.data.description}
+	</p>
+
+	{/* Enlace "Leer más" con flecha animada */}
+	<a
+		href={href}
+		class="text-sm font-bold text-text-primary hover:text-accent flex items-center gap-1 group mt-auto"
+	>
+		{t("blog.readMore")}
+		<span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
+	</a>
+</article>

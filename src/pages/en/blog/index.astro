@@ -1,0 +1,77 @@
+---
+// Astro Content
+import { getCollection } from "astro:content";
+// Componentes
+import PostCard from "../../../components/blog/PostCard.astro";
+// Internacionalización
+import { useTranslations } from "../../../i18n/ui";
+// Layouts
+import Layout from "../../../layouts/Layout.astro";
+
+export const prerender = true;
+
+const lang = "en";
+const t = useTranslations(lang);
+
+// Posts en inglés ordenados por fecha descendente
+const posts = await getCollection("blog");
+const enPosts = posts
+	.filter((post) => post.id.startsWith("en/"))
+	.sort(
+		(a, b) => new Date(b.data.date).valueOf() - new Date(a.data.date).valueOf(),
+	);
+
+// Etiquetas más frecuentes para filtrar por tema
+const tagCounts = enPosts
+	.flatMap((post) => post.data.tags || [])
+	.reduce(
+		(acc, tag) => {
+			acc[tag] = (acc[tag] || 0) + 1;
+			return acc;
+		},
+		{} as Record<string, number>,
+	);
+
+const popularTags = Object.entries(tagCounts)
+	.sort(([, a], [, b]) => b - a)
+	.slice(0, 10)
+	.map(([tag]) => tag);
+---
+
+<Layout title="Articles | Flux Blog" lang="en" wide>
+	<header class="mb-10 border-b border-border-subtle pb-8">
+		<h1
+			class="text-3xl sm:text-4xl font-extrabold tracking-tight text-text-primary mb-4"
+		>
+			{t("blog.title")}
+		</h1>
+		<p class="text-lg text-text-secondary leading-relaxed max-w-2xl">
+			{t("blog.subtitle")}
+		</p>
+	</header>
+
+	{
+		/* Temas populares: acceso rápido por etiqueta */
+		popularTags.length > 0 && (
+			<div class="mb-12">
+				<p class="text-xs font-bold text-text-muted uppercase tracking-wider mb-3">
+					{t("home.popular")}
+				</p>
+				<div class="flex flex-wrap gap-3">
+					{popularTags.map((tag) => (
+						<a
+							href={`/en/tags/${tag}`}
+							class="bg-bg-card border border-border-subtle text-text-secondary px-4 py-2 rounded-full text-sm font-medium hover:border-accent hover:text-accent hover:shadow-sm transition"
+						>
+							#{tag}
+						</a>
+					))}
+				</div>
+			</div>
+		)
+	}
+
+	<div class="grid gap-6 md:gap-8 sm:grid-cols-2 lg:grid-cols-3">
+		{enPosts.map((post) => <PostCard post={post} lang={lang} />)}
+	</div>
+</Layout>

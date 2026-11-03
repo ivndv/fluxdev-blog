@@ -1,0 +1,5 @@
+# Rutas antiguas del listado paginado que ahora vive en /blog
+/2 /blog 301
+/3 /blog 301
+/en/2 /en/blog 301
+/en/3 /en/blog 301
