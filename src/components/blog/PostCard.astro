@@ -7,9 +7,7 @@ const t = useTranslations(lang);
 
 // Ruta pública del post: los posts en inglés viven bajo /en/blog
 const href =
-	lang === "en"
-		? `/en/blog/${post.id.replace("en/", "")}`
-		: `/blog/${post.id}`;
+	lang === "en" ? `/en/blog/${post.id.replace("en/", "")}` : `/blog/${post.id}`;
 ---
 
 <article
