@@ -1,66 +1,51 @@
-# AGENTS.md — Guía para Agentes en FluxDev Blog
+# AGENTS.md — FluxDev Blog
 
-Guía operativa y técnica para agentes de Inteligencia Artificial que colaboren en el desarrollo, mantenimiento y optimización del proyecto **FluxDev Blog**.
-
----
-
-## 1. Visión General del Proyecto
+## 1. Visión general
 
 **FluxDev Blog** es una plataforma web moderna y estática (SSG) con capacidades dinámicas en el edge, diseñada para la divulgación de artículos técnicos, guías y contenido sobre desarrollo de software, frontend, backend y productividad.
 
-* **Propósito:** Ofrecer una experiencia de lectura ultrarrápida, accesible y multilingüe (español e inglés), con búsqueda de texto completo del lado del cliente vía WebAssembly (Pagefind), sistema interactivo de comentarios serverless respaldado por SQLite en el edge y protección anti-bots mediante Cloudflare Turnstile.
-* **Dominio en Producción:** [https://fluxdev-nebula.mgdc.site/](https://fluxdev-nebula.mgdc.site/)
-* **Repositorio:** [https://github.com/ivndv/fluxdev-blog](https://github.com/ivndv/fluxdev-blog)
+- **Propósito:** ofrecer una experiencia de lectura ultrarrápida, accesible y multilingüe (español e inglés), con búsqueda de texto completo del lado del cliente vía WebAssembly (Pagefind), sistema interactivo de comentarios serverless respaldado por SQLite en el edge y protección anti-bots mediante Cloudflare Turnstile.
+- **Dominio en producción:** [https://fluxdev-nebula.mgdc.site/](https://fluxdev-nebula.mgdc.site/)
+- **Repositorio:** [https://github.com/ivndv/fluxdev-blog](https://github.com/ivndv/fluxdev-blog)
 
----
+## 2. Antes de tocar código
 
-## 2. Antes de Tocar Código
+**CodeGraph** (índice de símbolos del repo): usa `codegraph_explore` (`query`, `maxFiles`, `projectPath`) antes de un grep masivo o de leer varios archivos; devuelve fuente verbatim, rutas de llamada e impacto.
 
-* **Uso del MCP CodeGraph:** Antes de realizar búsquedas masivas de texto o explorar múltiples archivos a ciegas, invoca la herramienta `codegraph_explore` para inspeccionar el flujo de llamadas, blast radius y el código fuente verbatim de los símbolos en una sola llamada eficiente.
-* **Estado y Sincronización:**
-  ```bash
-  # Verificar el estado del índice de CodeGraph
-  codegraph status /home/ivan/software-dev/fluxdev-blog
+- `codegraph sync /home/ivan/software-dev/fluxdev-blog` tras editar, pull o cambiar de rama (incremental, uso normal).
+- `codegraph index /home/ivan/software-dev/fluxdev-blog` solo al crear el índice, tras `codegraph upgrade` o si `status` avisa `built by vX` (rebuild completo).
+- `codegraph status /home/ivan/software-dev/fluxdev-blog` para comprobar el estado.
 
-  # Sincronizar cambios en el árbol de archivos tras crear o renombrar módulos
-  codegraph sync /home/ivan/software-dev/fluxdev-blog
-  ```
-
----
-
-## 3. Stack Tecnológico
+## 3. Stack tecnológico
 
 | Capa | Tecnología | Versión / Detalle |
 | :--- | :--- | :--- |
-| **Runtime & Gestor** | **Bun** | `v1.3.x` (`bun.lock`) |
-| **Lenguaje** | **TypeScript** | `^7.0.2` (Modo estricto con `tsconfig.json`) |
-| **Frontend & Framework** | **Astro 7** + **React 19** | `astro ^7.3.2`, `@astrojs/react ^6.0.5`, `react ^19.2.8` |
-| **Estilos & UI** | **Tailwind CSS 4** | `@tailwindcss/vite ^4.3.3`, `@tailwindcss/typography ^0.5.20`, `@iconify/tailwind4 ^1.2.3` |
+| **Runtime y gestor** | **Bun** | `v1.3.x` (`bun.lock`) |
+| **Lenguaje** | **TypeScript** | `^7.0.2` (modo estricto con `tsconfig.json`) |
+| **Frontend y framework** | **Astro 7** + **React 19** | `astro ^7.3.2`, `@astrojs/react ^6.0.5`, `react ^19.2.8` |
+| **Estilos y UI** | **Tailwind CSS 4** | `@tailwindcss/vite ^4.3.3`, `@tailwindcss/typography ^0.5.20`, `@iconify/tailwind4 ^1.2.3` |
 | **Fuentes** | **Fontsource Outfit** | `@fontsource/outfit ^5.3.0` (autoalojada) |
-| **Estado Global** | **Zustand 5** | `zustand ^5.0.15` (gestión de comentarios y UI en `src/store/`) |
-| **Motor de Búsqueda** | **Pagefind** | `pagefind ^1.5.2` (indexación estática post-build, búsqueda WASM cliente) |
+| **Estado global** | **Zustand 5** | `zustand ^5.0.15` (gestión de comentarios y UI en `src/store/`) |
+| **Motor de búsqueda** | **Pagefind** | `pagefind ^1.5.2` (indexación estática post-build, búsqueda WASM cliente) |
 | **Backend / Edge API** | **Hono 4** en Cloudflare Pages Functions | `hono ^4.13.7` (enrutamiento ligero en `functions/api/[[route]].ts`) |
-| **Base de Datos** | **Cloudflare D1 (SQLite)** | Base de datos distribuida en el edge (`blog-comments`) |
-| **Caché & Rate Limit** | **Cloudflare Workers KV** | KV namespace para caché de comentarios (TTL 300s) y límite de peticiones |
-| **Anti-Bot / Captcha** | **Cloudflare Turnstile** | Validación server-side en Pages Function y widget cliente |
-| **Validación de Datos** | **Zod 4** | `zod ^4.6.2` (esquema de validación en `functions/_shared/schema.ts`) |
+| **Base de datos** | **Cloudflare D1 (SQLite)** | Base de datos distribuida en el edge (`blog-comments`) |
+| **Caché y rate limit** | **Cloudflare Workers KV** | KV namespace para caché de comentarios (TTL 300s) y límite de peticiones |
+| **Anti-bot / captcha** | **Cloudflare Turnstile** | Validación server-side en Pages Function y widget cliente |
+| **Validación de datos** | **Zod 4** | `zod ^4.6.2` (esquema de validación en `functions/_shared/schema.ts`) |
 | **Sanitización HTML** | **sanitize-html** | `sanitize-html ^2.17.7` (limpieza estricta de comentarios) |
-| **SEO & RSS** | **Astro Sitemap & RSS** | `@astrojs/sitemap ^3.7.4`, `@astrojs/rss ^4.0.19`, Schema.org JSON-LD |
+| **SEO y RSS** | **Astro Sitemap & RSS** | `@astrojs/sitemap ^3.7.4`, `@astrojs/rss ^4.0.19`, Schema.org JSON-LD |
 | **Internacionalización (i18n)** | **Astro i18n nativo** | Rutas `/` (español) y `/en/` (inglés), diccionarios en `src/i18n/ui.ts` |
-| **Linter & Formatter** | **Biome 2** | `@biomejs/biome ^2.5.13` (`biome.jsonc` con preset `recommended`) |
-| **Pruebas Unitarias** | **Vitest 5** | `vitest ^5.0.0` con entorno `jsdom` (8 tests de utilidades e i18n) |
-| **CDN & Assets** | **Cloudflare R2** | Bucket unificado `assets-mgdc`, dominio `https://assets.mgdc.site/fluxdevblog/` |
-| **Infraestructura Edge** | **Cloudflare Pages** | Despliegue estático global con Pages Functions integradas |
+| **Linter y formatter** | **Biome 2** | `@biomejs/biome ^2.5.13` (`biome.jsonc` con preset `recommended`) |
+| **Pruebas unitarias** | **Vitest 5** | `vitest ^5.0.0` con entorno `jsdom` (8 tests de utilidades e i18n) |
+| **CDN y assets** | **Cloudflare R2** | Bucket unificado `assets-mgdc`, dominio `https://assets.mgdc.site/fluxdevblog/` |
+| **Infraestructura edge** | **Cloudflare Pages** | Despliegue estático global con Pages Functions integradas |
 
----
-
-## 4. Estructura del Código
+## 4. Estructura del código
 
 ```
 fluxdev-blog/
 ├── functions/                     → Backend Edge (Cloudflare Pages Functions)
-│   ├── api/
-│   │   └── [[route]].ts           → Entry point Hono: GET/POST /api/comments/:slug
+│   ├── api/[[route]].ts           → Entry point Hono: GET/POST /api/comments/:slug
 │   ├── _controllers/              → Orquestación de casos de uso
 │   │   ├── commentsController.ts  → Controlador con inyección de dependencias
 │   │   └── commentsController.test.ts
@@ -75,7 +60,6 @@ fluxdev-blog/
 │       ├── schema.ts              → Esquema de validación Zod (CommentSchema)
 │       ├── schema.test.ts
 │       └── types.ts               → Tipos Env, Comment y ApiResponse
-│
 ├── public/                        → Assets estáticos públicos directos
 │   ├── _headers                   → Reglas de seguridad (CSP, HSTS) y caché por extensión
 │   ├── favicon.svg                → Favicon vectorial primario
@@ -83,7 +67,6 @@ fluxdev-blog/
 │   ├── manifest.json              → Manifiesto PWA de la aplicación
 │   ├── robots.txt                 → Directivas para motores de búsqueda y rastreadores
 │   └── sw.js                      → Service Worker de la aplicación
-│
 ├── src/                           → Código fuente de la aplicación Astro + React
 │   ├── components/                → Componentes modulares
 │   │   ├── analytics/             → Integración de telemetría (UmamiAnalytics.astro)
@@ -104,9 +87,7 @@ fluxdev-blog/
 │   │       ├── MetaBase.astro     → Metatags canónicos, robots y viewport
 │   │       ├── SeoValidator.ts    → Validador de consistencia de metadatos en desarrollo
 │   │       └── SocialCards.astro  → Generación de Twitter Cards y Open Graph tags
-│   │
-│   ├── content/                   → Contenido editorial en Markdown
-│   │   └── blog/                  → Artículos en español y subdirectorio /en/ en inglés
+│   ├── content/blog/              → Artículos en español y subdirectorio /en/ en inglés
 │   ├── hooks/                     → Hooks reutilizables (useTurnstile.js)
 │   ├── i18n/                      → Diccionarios y utilidades de traducción (ui.ts, ui.test.ts)
 │   ├── layouts/                   → Layouts base (Layout.astro, BlogPost.astro)
@@ -118,7 +99,6 @@ fluxdev-blog/
 │   │   ├── rss.xml.js             → Feed RSS principal
 │   │   ├── legal/                 → Términos y política de privacidad
 │   │   └── en/                    → Rutas localizadas para inglés ([...page], blog, tags, about)
-│   │
 │   ├── store/                     → Gestión de estado global con Zustand
 │   │   ├── store.js               → Store unificado con persistencia
 │   │   └── slices/                → Slices del store
@@ -127,7 +107,6 @@ fluxdev-blog/
 │   ├── styles/                    → Estilos globales (global.css con Tailwind 4)
 │   ├── test/                      → Configuración de pruebas (setup.ts para Vitest)
 │   └── utils/                     → Funciones de utilidad (date, path, posts, string)
-│
 ├── astro.config.mjs               → Configuración de Astro, Tailwind Vite, i18n y plugins Remark
 ├── biome.jsonc                    → Configuración del linter y formateador Biome 2
 ├── bun.lock                       → Lockfile oficial de dependencias de Bun
@@ -136,34 +115,25 @@ fluxdev-blog/
 └── wrangler.jsonc                 → Configuración de Cloudflare Pages, D1 Database y KV Bindings
 ```
 
----
-
-## 5. Arquitectura y Flujo de Datos
+## 5. Arquitectura y flujo de datos
 
 ```
 [ Usuario en Navegador ]
         │
         ├── Carga de Páginas / Artículos: Servido desde CDN Edge (HTML estático + CSS + JS)
         ├── Búsqueda de Texto: Pagefind (WASM + Índices estáticos en /dist/pagefind/)
-        │
-        ├── Lectura de Comentarios:  GET /api/comments/:slug
-        │        │
-        │        ├── 1. Cache: Lee la clave comments:<slug> en KV (TTL 300s)
+        ├── Lectura de Comentarios: GET /api/comments/:slug
+        │        ├── 1. Cache: lee la clave comments:<slug> en KV (TTL 300s)
         │        ├── 2. Cache HIT: responde con header X-Cache: HIT
         │        ├── 3. Cache MISS: consulta Cloudflare D1 (ORDER BY created_at DESC)
         │        └── 4. Guarda en KV y responde con header X-Cache: MISS
-        │
-        └── Envío de Comentarios:  POST /api/comments/:slug
-                 │
-                 ▼
-        [ commentsController (Hono 4 en Pages Functions) ]
-                 │
+        └── Envío de Comentarios: POST /api/comments/:slug → [ commentsController (Hono 4 en Pages Functions) ]
                  ├── 1. Validación: CommentSchema con Zod (author, content, token)
                  ├── 2. Rate limit: 5 intentos / 15 min por CF-Connecting-IP (KV, TTL 900s)
                  ├── 3. Sanitización: sanitize-html sin tags ni atributos permitidos
-                 ├── 4. Anti-bot: Verificación del token contra Turnstile siteverify
+                 ├── 4. Anti-bot: verificación del token contra Turnstile siteverify
                  ├── 5. Persistencia: INSERT en Cloudflare D1 (SQLite)
-                 └── 6. Invalidación: Borra la clave comments:<slug> de KV
+                 └── 6. Invalidación: borra la clave comments:<slug> de KV
 ```
 
 Respuestas del endpoint de escritura:
@@ -176,18 +146,18 @@ Respuestas del endpoint de escritura:
 | `429` | Límite de 5 comentarios por 15 minutos excedido |
 | `500` | Error de D1 o fallo interno |
 
----
+## 6. Variables de entorno y bindings
 
-## 6. Variables de Entorno y Bindings
+### 6.1 Frontend (build y cliente)
 
-### Frontend (Build & Cliente)
-Configuradas en `.env` (local) o variables de entorno de Cloudflare Pages:
+Configuradas en `.env` (local) o en variables de entorno de Cloudflare Pages:
 
 | Variable | Tipo | Descripción |
 | :--- | :--- | :--- |
 | `PUBLIC_TURNSTILE_SITE_KEY` | Pública | Clave pública del widget de Cloudflare Turnstile en el formulario de comentarios. |
 
-### Backend Edge (Cloudflare Pages Functions)
+### 6.2 Backend edge (Cloudflare Pages Functions)
+
 Configuradas en `.dev.vars` (desarrollo local) o en secrets de Cloudflare Pages (producción):
 
 | Binding / Variable | Tipo | Descripción |
@@ -196,58 +166,55 @@ Configuradas en `.dev.vars` (desarrollo local) o en secrets de Cloudflare Pages 
 | `KV` | KV Binding | Namespace de Workers KV para caché de comentarios y control de tasa (ID: `9b86fe89e24443fb892f1e2b91383d12`). |
 | `TURNSTILE_SECRET_KEY` | Secreto | Clave secreta para la verificación server-side de tokens contra la API de Cloudflare. |
 
----
-
-## 7. Comandos de Desarrollo y Tooling
+## 7. Comandos
 
 Todos los comandos deben ejecutarse con **Bun**:
 
 ```bash
 # Desarrollo Frontend (Servidor Astro dev en puerto 4321)
 bun run dev
-
 # Desarrollo Fullstack (Build estático + emulación de Pages Functions con D1 y KV locales)
 bun run dev:full
-
 # Compilación de producción (Astro build + indexación de búsqueda con Pagefind)
 bun run build
-
 # Previsualización del build estático generado en dist/
 bun run preview
-
 # Diagnóstico y corrección automática con Biome
 bun run check
+# Ejecutar linter con Biome
 bun run lint
+# Formatear archivos con Biome
 bun run format
-
 # Ejecución de pruebas unitarias con Vitest
 bun run test
-
 # Sincronización de Base de Datos D1 (export remoto -> import local)
 bun run sync:db
 ```
 
----
+## 8. Convenciones y reglas críticas
 
-## 8. Convenciones Obligatorias para Agentes
+### 8.1 Gestor de paquetes exclusivo
 
-### 8.1 Gestor de Paquetes Exclusivo
-* **Utiliza siempre `bun`.** Queda terminantemente prohibido el uso de `npm`, `yarn` o `pnpm`.
+- **Utiliza siempre `bun`.** Queda terminantemente prohibido el uso de `npm`, `yarn` o `pnpm`.
 
-### 8.2 Regla de Oro en Ejecución de Pruebas
-* **NO ejecutar comandos de test de forma reactiva tras cada pequeño cambio.** Realizar todos los cambios de código primero y correr las suites de pruebas únicamente al final cuando todo el conjunto esté listo y verificado.
+### 8.2 Regla de oro en ejecución de pruebas
 
-### 8.3 Centralización de Assets en R2
-* Todos los assets estáticos del blog (favicons pesados, logos de proyectos, imágenes Open Graph) deben residir en el bucket centralizado `assets-mgdc` bajo la ruta `/fluxdevblog/` y servirse mediante `https://assets.mgdc.site/fluxdevblog/<archivo>`.
-* No agregar imágenes estáticas pesadas al directorio `public/` local si superan unos pocos kilobytes.
+- **No ejecutar comandos de test de forma reactiva tras cada pequeño cambio.** Realizar todos los cambios de código primero y correr las suites de pruebas únicamente al final, cuando todo el conjunto esté listo y verificado.
 
-### 8.4 Estilo de Código y Comentarios
-* **Idioma:** Todo el código, comentarios y documentación deben redactarse en **español**.
-* **Comentarios concisos:** Comentarios de una sola línea, directos y explicativos del *por qué*, sin bloques redundantes ni explicaciones obvias.
-* **Tipado estricto:** Prohibido el uso de `any` en TypeScript; tipar rigurosamente props, respuestas de API y esquemas.
+### 8.3 Centralización de assets en R2
 
-### 8.5 Flujo de Git y Despliegues
-* **PROHIBIDO realizar commits o push sin la aprobación explícita del usuario.**
-* **Flujo de ramas:** Todo desarrollo se realiza en la rama `develop` y se mergea hacia `main` mediante fast-forward una vez validado.
-* **Mensajes de commit:** Seguir la especificación *Conventional Commits* en minúsculas y español (`feat: ...`, `fix: ...`, `chore: ...`, `docs: ...`). **Estrictamente una sola línea de título sin cuerpo, saltos de línea ni viñetas adicionales**.
-* **Sincronización de CodeGraph:** Tras crear, renombrar o eliminar archivos, ejecutar `codegraph sync /home/ivan/software-dev/fluxdev-blog` para mantener el grafo de conocimiento actualizado.
+- Todos los assets estáticos del blog (favicons pesados, logos de proyectos, imágenes Open Graph) deben residir en el bucket centralizado `assets-mgdc` bajo la ruta `/fluxdevblog/` y servirse mediante `https://assets.mgdc.site/fluxdevblog/<archivo>`.
+- No agregar imágenes estáticas pesadas al directorio `public/` local si superan unos pocos kilobytes.
+
+### 8.4 Estilo de código y comentarios
+
+- **Idioma:** todo el código, comentarios y documentación deben redactarse en **español**.
+- **Comentarios concisos:** comentarios de una sola línea, directos y explicativos del *por qué*, sin bloques redundantes ni explicaciones obvias.
+- **Tipado estricto:** prohibido el uso de `any` en TypeScript; tipar rigurosamente props, respuestas de API y esquemas.
+
+## 9. Flujo de Git y despliegue
+
+- **Commits y push:** prohibido realizar commits o push sin la aprobación explícita del usuario.
+- **Flujo de ramas:** todo desarrollo se realiza en la rama `develop` y se mergea hacia `main` mediante fast-forward una vez validado y aprobado.
+- **Mensajes de commit:** seguir la especificación *Conventional Commits* en minúsculas y español (`feat: ...`, `fix: ...`, `chore: ...`, `docs: ...`). Estrictamente una sola línea de título, sin cuerpo, saltos de línea ni viñetas adicionales.
+- **Despliegue:** Cloudflare Pages sirve el sitio estático y las Pages Functions, con D1 (`DB`) y KV (`KV`) como bindings de producción.
