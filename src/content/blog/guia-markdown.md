@@ -2,7 +2,7 @@
 ref_id: blog-guia-markdown
 title: "Guía Rápida de Markdown"
 date: "2026-01-05"
-image: "https://assets.mgdc.site/fluxdevblog/covers/blog-guia-markdown-v2.png"
+image: "https://assets.liuma.app/fluxdevblog/covers/blog-guia-markdown-v2.png"
 description: "Aprende la sintaxis básica de Markdown para escribir documentación, READMEs y artículos de blog de forma rápida y limpia."
 tags: ["markdown", "escritura", "documentacion", "guia"]
 ---

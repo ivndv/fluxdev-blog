@@ -2,7 +2,7 @@
 ref_id: blog-intro-typescript
 title: "Introduction to TypeScript: The Modern Standard"
 date: "2026-01-15"
-image: "https://assets.mgdc.site/fluxdevblog/covers/en/blog-intro-typescript-v2.png"
+image: "https://assets.liuma.app/fluxdevblog/covers/en/blog-intro-typescript-v2.png"
 description: "Discover why TypeScript has become the undisputed standard for modern web development and how to start using it today."
 tags: ["development", "typescript", "javascript", "guide"]
 ---

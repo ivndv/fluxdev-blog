@@ -2,7 +2,7 @@
 ref_id: blog-futuro-web
 title: "El Futuro del Desarrollo Web: IA, WASM y Edge"
 date: "2026-01-22"
-image: "https://assets.mgdc.site/fluxdevblog/covers/blog-futuro-web-v2.png"
+image: "https://assets.liuma.app/fluxdevblog/covers/blog-futuro-web-v2.png"
 description: "¿Hacia dónde va la web? Exploramos las tecnologías emergentes que redefinirán la próxima década."
 tags: ["futuro", "tech", "wasm", "ai"]
 ---

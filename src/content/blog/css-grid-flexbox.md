@@ -2,7 +2,7 @@
 ref_id: blog-css-grid-flexbox
 title: "CSS Grid vs Flexbox: ¿Cuál usar y cuándo?"
 date: "2026-01-20"
-image: "https://assets.mgdc.site/fluxdevblog/covers/blog-css-grid-flexbox-v2.png"
+image: "https://assets.liuma.app/fluxdevblog/covers/blog-css-grid-flexbox-v2.png"
 description: "Entiende las diferencias clave entre Grid y Flexbox y aprende a combinarlos para crear layouts modernos y robustos."
 tags: ["css", "frontend", "diseño", "web"]
 ---

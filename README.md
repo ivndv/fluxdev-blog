@@ -25,7 +25,7 @@ Plataforma web moderna diseñada para compartir artículos, guías técnicas y r
 
 ## Uso
 
-- **Visualizar Contenido**: La plataforma ya está activa y puedes explorarla en vivo aquí: [Fluxdev Blog](https://fluxdev-nebula.mgdc.site/).
+- **Visualizar Contenido**: La plataforma ya está activa y puedes explorarla en vivo aquí: [Fluxdev Blog](https://fluxdev.liuma.app/).
 - **Explorar Artículos**: Navega entre las publicaciones recientes o filtra por etiquetas para acceder a temas específicos.
 - **Buscar Publicaciones**: Abre la ventana de búsqueda desde la barra superior y escribe palabras clave para encontrar artículos al instante.
 - **Dejar Comentarios**: Comparte tu opinión al final de cualquier publicación mediante el formulario interactivo protegido con verificación anti-bot.
@@ -48,7 +48,7 @@ Plataforma web moderna diseñada para compartir artículos, guías técnicas y r
 
 ## Despliegue
 
-La plataforma está construida para ofrecer la máxima velocidad con generación estática (SSG) y API distribuida en el edge, desplegada de forma global a través de Cloudflare Pages. Puedes usarla directamente aquí: [Fluxblog](https://fluxdev-nebula.mgdc.site/)
+La plataforma está construida para ofrecer la máxima velocidad con generación estática (SSG) y API distribuida en el edge, desplegada de forma global a través de Cloudflare Pages. Puedes usarla directamente aquí: [Fluxblog](https://fluxdev.liuma.app/)
 
 ## Licencia
 

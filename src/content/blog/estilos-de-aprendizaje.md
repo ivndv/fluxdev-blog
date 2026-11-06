@@ -2,7 +2,7 @@
 ref_id: blog-estilos-de-aprendizaje
 title: "Estilos de Aprendizaje"
 date: "2025-12-23"
-image: "https://assets.mgdc.site/fluxdevblog/covers/blog-estilos-de-aprendizaje-v2.png"
+image: "https://assets.liuma.app/fluxdevblog/covers/blog-estilos-de-aprendizaje-v2.png"
 description: "Reconocer y comprender tu estilo de aprendizaje puede mejorar tu capacidad para aprender."
 tags: ["aprendizaje", "educacion", "metodos"]
 ---

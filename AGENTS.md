@@ -5,7 +5,7 @@
 **FluxDev Blog** es una plataforma web moderna y estática (SSG) con capacidades dinámicas en el edge, diseñada para la divulgación de artículos técnicos, guías y contenido sobre desarrollo de software, frontend, backend y productividad.
 
 - **Propósito:** ofrecer una experiencia de lectura ultrarrápida, accesible y multilingüe (español e inglés), con búsqueda de texto completo del lado del cliente vía WebAssembly (Pagefind), sistema interactivo de comentarios serverless respaldado por SQLite en el edge y protección anti-bots mediante Cloudflare Turnstile.
-- **Dominio en producción:** [https://fluxdev-nebula.mgdc.site/](https://fluxdev-nebula.mgdc.site/)
+- **Dominio en producción:** [https://fluxdev.liuma.app/](https://fluxdev.liuma.app/)
 - **Repositorio:** [https://github.com/ivndv/fluxdev-blog](https://github.com/ivndv/fluxdev-blog)
 
 ## 2. Antes de tocar código
@@ -37,7 +37,7 @@
 | **Internacionalización (i18n)** | **Astro i18n nativo** | Rutas `/` (español) y `/en/` (inglés), diccionarios en `src/i18n/ui.ts` |
 | **Linter y formatter** | **Biome 2** | `@biomejs/biome ^2.5.13` (`biome.jsonc` con preset `recommended`) |
 | **Pruebas unitarias** | **Vitest 5** | `vitest ^5.0.0` con entorno `jsdom` (8 tests de utilidades e i18n) |
-| **CDN y assets** | **Cloudflare R2** | Bucket unificado `assets-mgdc`, dominio `https://assets.mgdc.site/fluxdevblog/` |
+| **CDN y assets** | **Cloudflare R2** | Bucket unificado `assets-mgdc`, dominio `https://assets.liuma.app/fluxdevblog/` |
 | **Infraestructura edge** | **Cloudflare Pages** | Despliegue estático global con Pages Functions integradas |
 
 ## 4. Estructura del código
@@ -203,7 +203,7 @@ bun run sync:db
 
 ### 8.3 Centralización de assets en R2
 
-- Todos los assets estáticos del blog (favicons pesados, logos de proyectos, imágenes Open Graph) deben residir en el bucket centralizado `assets-mgdc` bajo la ruta `/fluxdevblog/` y servirse mediante `https://assets.mgdc.site/fluxdevblog/<archivo>`.
+- Todos los assets estáticos del blog (favicons pesados, logos de proyectos, imágenes Open Graph) deben residir en el bucket centralizado `assets-mgdc` bajo la ruta `/fluxdevblog/` y servirse mediante `https://assets.liuma.app/fluxdevblog/<archivo>`.
 - No agregar imágenes estáticas pesadas al directorio `public/` local si superan unos pocos kilobytes.
 
 ### 8.4 Estilo de código y comentarios

@@ -2,7 +2,7 @@
 ref_id: blog-hacks-productividad
 title: "5 Productivity Hacks for Developers"
 date: "2026-01-02"
-image: "https://assets.mgdc.site/fluxdevblog/covers/en/blog-hacks-productividad-v2.png"
+image: "https://assets.liuma.app/fluxdevblog/covers/en/blog-hacks-productividad-v2.png"
 description: "Improve your workflow with these practical tips and tools that every developer should know."
 tags: ["productivity", "tips", "tools", "lifestyle"]
 ---

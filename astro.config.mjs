@@ -21,7 +21,7 @@ function remarkReadingTime() {
 
 // Configuracion general del sitio Astro
 export default defineConfig({
-	site: "https://fluxdev-nebula.mgdc.site/",
+	site: "https://fluxdev.liuma.app/",
 	output: "static",
 	integrations: [sitemap(), react()],
 	// Internacionalizacion con espanol como idioma por defecto

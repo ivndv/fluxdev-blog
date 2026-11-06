@@ -2,7 +2,7 @@
 ref_id: blog-lifelong-learning
 title: "Lifelong Learning: El arte de nunca dejar de aprender"
 date: "2025-12-22"
-image: "https://assets.mgdc.site/fluxdevblog/covers/blog-lifelong-learning-v2.png"
+image: "https://assets.liuma.app/fluxdevblog/covers/blog-lifelong-learning-v2.png"
 description: "Por qué el aprendizaje no termina en la escuela y cómo adoptarlo como un estilo de vida."
 tags: ["aprendizaje", "crecimiento", "carrera", "filosofia"]
 ---
